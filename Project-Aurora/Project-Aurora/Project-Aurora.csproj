@@ -328,6 +328,9 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
+    <Reference Include="TongFang">
+      <HintPath>.\TongFang.dll</HintPath>
+    </Reference>
     <Reference Include="Vulcan.NET, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Vulcan.NET.1.1.0\lib\netstandard2.0\Vulcan.NET.dll</HintPath>
     </Reference>
@@ -376,6 +379,7 @@
       <DependentUpon>Control_FieldPresenter.xaml</DependentUpon>
     </Compile>
     <Compile Include="Devices\UnifiedHID\RoccatTyon.cs" />
+    <Compile Include="Devices\TongFang\TongFang.cs" />
     <Compile Include="Devices\Vulcan\Vulcan.cs" />
     <Compile Include="Profiles\RocketLeague\GSI\Nodes\Team.cs" />
     <Compile Include="Profiles\RocketLeague\Layers\RocketLeagueGoalExplosionLayerHandler.cs" />
