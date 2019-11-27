@@ -45,6 +45,9 @@ namespace Aurora.Devices.TongFang
                     new Aurora.Utils.RealColor(System.Drawing.Color.FromArgb(0, 0, 0, 0)));
                 default_registry.Register($"{deviceName}_brightness", 50, "Brightness", 100, 1, "In percent");
                 default_registry.Register($"{deviceName}_ansi", true, "ANSI layout", remark: "All options require a restart of the device integration.");
+                default_registry.Register($"{deviceName}_scalar_r", 255, "Red Scalar", 255, 0);
+                default_registry.Register($"{deviceName}_scalar_g", 255, "Green Scalar", 255, 0);
+                default_registry.Register($"{deviceName}_scalar_b", 255, "Blue Scalar", 255, 0);
             }
             return default_registry;
         }
@@ -110,9 +113,15 @@ namespace Aurora.Devices.TongFang
 
             foreach (KeyValuePair<DeviceKeys, Color> key in keyColors)
             {
-                Color clr = Color.FromArgb(255, Utils.ColorUtils.MultiplyColorByScalar(key.Value, key.Value.A / 255.0D));
-                if (KeyMap.TryGetValue(key.Key, out var vulcanKey))
-                    Keyboard.SetKeyColor(vulcanKey, clr);
+                Color correction = Color.FromArgb(
+                          (byte)(key.Value.R * (Global.Configuration.VarRegistry.GetVariable<int>($"{deviceName}_scalar_r") / 255.0D)),
+                          (byte)(key.Value.G * (Global.Configuration.VarRegistry.GetVariable<int>($"{deviceName}_scalar_g") / 255.0D)),
+                          (byte)(key.Value.B * (Global.Configuration.VarRegistry.GetVariable<int>($"{deviceName}_scalar_b") / 255.0D)));
+
+                Color clr = Color.FromArgb(255, Utils.ColorUtils.MultiplyColorByScalar(correction, correction.A / 255.0D));
+
+                if (KeyMap.TryGetValue(key.Key, out var tfKey))
+                    Keyboard.SetKeyColor(tfKey, clr);
             }
 
             return Keyboard.Update();
