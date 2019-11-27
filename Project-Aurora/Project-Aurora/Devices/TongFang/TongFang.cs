@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -39,8 +39,12 @@ namespace Aurora.Devices.TongFang
             if(default_registry == null)
             {
                 default_registry = new VariableRegistry();
+                default_registry.Register($"{deviceName}_restore_color",
+                    new Aurora.Utils.RealColor(System.Drawing.Color.FromArgb(255, 0, 0, 255)),"Restore Color",
+                    new Aurora.Utils.RealColor(System.Drawing.Color.FromArgb(255, 255, 255, 255)),
+                    new Aurora.Utils.RealColor(System.Drawing.Color.FromArgb(0, 0, 0, 0)));
                 default_registry.Register($"{deviceName}_brightness", 50, "Brightness", 100, 1, "In percent");
-                default_registry.Register($"{deviceName}_ansi", true, "ANSI layout", remark: "Both options require a restart of the device integration.");
+                default_registry.Register($"{deviceName}_ansi", true, "ANSI layout", remark: "All options require a restart of the device integration.");
             }
             return default_registry;
         }
@@ -94,6 +98,8 @@ namespace Aurora.Devices.TongFang
 
         public void Shutdown()
         {
+            Keyboard.SetColorFull(Global.Configuration.VarRegistry.GetVariable<Color>($"{deviceName}_restore_color"));
+            Keyboard.Update();
             Keyboard.Disconnect();
         }
 
@@ -191,7 +197,7 @@ namespace Aurora.Devices.TongFang
             { DeviceKeys.OPEN_BRACKET, Key.OPEN_BRACKET },
             { DeviceKeys.APOSTROPHE, Key.APOSTROPHE },
             { DeviceKeys.FORWARD_SLASH, Key.FORWARD_SLASH },
-            { DeviceKeys.FN_Key, Key.FN_Key },
+            { DeviceKeys.LEFT_FN, Key.FN_Key },
             { DeviceKeys.EQUALS, Key.EQUALS },
             { DeviceKeys.CLOSE_BRACKET, Key.CLOSE_BRACKET },
             { DeviceKeys.BACKSLASH, Key.BACKSLASH },
