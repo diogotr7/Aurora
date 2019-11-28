@@ -1,0 +1,211 @@
+﻿{
+  "keys_to_remove": [
+    //numpad
+    34,
+    35,
+    36,
+    37,
+    55,
+    56,
+    57,
+    58,
+    73,
+    74,
+    75,
+    76,
+    90,
+    91,
+    92,
+    93,
+    105,
+    106,
+    //numpad
+    //nav cluster
+
+   // 32,
+   // 33,
+   // 53,
+   // 54,
+    //nav cluster
+
+
+    //rightwin
+    99
+    //rightwin
+
+  ],
+  "key_modifications": {
+    //f keys spacing
+    "2": {
+      "visualName": null,
+      "tag": 2,
+      "line_break": null,
+      "margin_left": 7.0,
+      "margin_top": null,
+      "width": null,
+      "height": null,
+      "font_size": null,
+      "width_bits": null,
+      "height_bits": null,
+      "margin_left_bits": null,
+      "margin_top_bits": null,
+      "enabled": null
+    },
+    "6": {
+      "visualName": null,
+      "tag": 6,
+      "line_break": null,
+      "margin_left": 7.0,
+      "margin_top": null,
+      "width": null,
+      "height": null,
+      "font_size": null,
+      "width_bits": null,
+      "height_bits": null,
+      "margin_left_bits": null,
+      "margin_top_bits": null,
+      "enabled": null
+    },
+    "10": {
+      "visualName": null,
+      "tag": 10,
+      "line_break": null,
+      "margin_left": 7.0,
+      "margin_top": null,
+      "width": null,
+      "height": null,
+      "font_size": null,
+      "width_bits": null,
+      "height_bits": null,
+      "margin_left_bits": null,
+      "margin_top_bits": null,
+      "enabled": null
+    },
+    //f key spacing
+
+    "14": {
+      "visualName": "INSERT",
+      "tag": 31,
+      "line_break": false,
+      "margin_left": 7.0,
+      "margin_top": null,
+      "width": null,
+      "height": null,
+      "font_size": null,
+      "width_bits": null,
+      "height_bits": null,
+      "margin_left_bits": null,
+      "margin_top_bits": null,
+      "enabled": null
+    },
+
+    "15": {
+      "visualName": "PRTSCRN",
+      "tag": 14,
+      "line_break": false,
+      "margin_left": 7.0,
+      "margin_top": null,
+      "width": null,
+      "height": null,
+      "font_size": null,
+      "width_bits": null,
+      "height_bits": null,
+      "margin_left_bits": null,
+      "margin_top_bits": null,
+      "enabled": null
+    },
+    "16": {
+      "visualName": "DEL",
+      "tag": 52,
+      "line_break": true,
+      "margin_left": 7.0,
+      "margin_top": null,
+      "width": null,
+      "height": null,
+      "font_size": null,
+      "width_bits": null,
+      "height_bits": null,
+      "margin_left_bits": null,
+      "margin_top_bits": null,
+      "enabled": null
+    },
+    "31": {
+      "visualName": "HOME",
+      "tag": 32,
+      "line_break": true,
+      "margin_left": 7.0,
+      "margin_top": null,
+      "width": null,
+      "height": null,
+      "font_size": null,
+      "width_bits": null,
+      "height_bits": null,
+      "margin_left_bits": null,
+      "margin_top_bits": null,
+      "enabled": null
+    },
+    "52": {
+      "visualName": "PGUP",
+      "tag": 33,
+      "line_break": true,
+      "margin_left": 7.0,
+      "margin_top": null,
+      "width": null,
+      "height": null,
+      "font_size": null,
+      "width_bits": null,
+      "height_bits": null,
+      "margin_left_bits": null,
+      "margin_top_bits": null,
+      "enabled": null
+    },
+    "73": {
+      "visualName": "PGDN",
+      "tag": 54,
+      "line_break": true,
+      "margin_left": 7.0,
+      "margin_top": null,
+      "width": null,
+      "height": null,
+      "font_size": null,
+      "width_bits": null,
+      "height_bits": null,
+      "margin_left_bits": null,
+      "margin_top_bits": null,
+      "enabled": null
+    },
+    "89": {
+      "visualName": "END",
+      "tag": 53,
+      "line_break": true,
+      "margin_left": 7.0,
+      "margin_top": null,
+      "width": null,
+      "height": null,
+      "font_size": null,
+      "width_bits": null,
+      "height_bits": null,
+      "margin_left_bits": null,
+      "margin_top_bits": null,
+      "enabled": null
+    },
+    "102": {
+      "visualName": "rgt",
+      "tag": 104,
+      "line_break": true,
+      "margin_left": 7.0,
+      "margin_top": null,
+      "width": null,
+      "height": null,
+      "font_size": null,
+      "width_bits": null,
+      "height_bits": null,
+      "margin_left_bits": null,
+      "margin_top_bits": null,
+      "enabled": null
+    }
+  },
+  "included_features": [
+    //"generic_laptop_left_bottom_features.json",
+  ]
+}
