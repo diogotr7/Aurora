@@ -59,6 +59,7 @@ namespace Aurora.Devices.TongFang
 
             if (Keyboard.Initialize(brightness, layout))
             {
+                Keyboard.SetColorFull(Color.Black);
                 Global.logger.Info($"Initialized TongFang with {layout.ToString()} layout and {brightness}% brightness");
                 return true;
             }
