@@ -244,6 +244,9 @@ namespace Aurora.Settings
 	//Creative range is 1100-1199
         [Description("SoundBlasterX VanguardK08")]
         SoundBlasterX_Vanguard_K08 = 1100,
+
+        [Description("XMG 15")]
+        XMG_15 = 1200
     }
 
     public enum PreferredKeyboardLocalization
