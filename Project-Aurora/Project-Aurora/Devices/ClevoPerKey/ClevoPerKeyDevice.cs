@@ -211,7 +211,7 @@ namespace Aurora.Devices.ClevoPerKey
             { DeviceKeys.NUM_TWO, Key.NUMPAD_TWO },
             { DeviceKeys.NUM_ASTERISK, Key.NUMPAD_MULTIPLY },
             { DeviceKeys.NUM_NINE, Key.NUMPAD_NINE },
-            { DeviceKeys.NUM_SIX, Key.SIX },
+            { DeviceKeys.NUM_SIX, Key.NUMPAD_SIX },
             { DeviceKeys.NUM_THREE, Key.NUMPAD_THREE },
             { DeviceKeys.NUM_PERIOD, Key.NUMPAD_PERIOD },
             { DeviceKeys.NUM_MINUS, Key.NUMPAD_MINUS },
