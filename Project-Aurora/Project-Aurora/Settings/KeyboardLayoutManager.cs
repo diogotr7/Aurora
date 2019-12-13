@@ -752,6 +752,8 @@ namespace Aurora.Settings
                 layoutConfigPath = Path.Combine(layoutsPath, "wooting_two.json");
             else if (keyboard_preference == PreferredKeyboard.TongFang15Inch)
                 layoutConfigPath = Path.Combine(layoutsPath, "tongfang15.json");
+            else if (keyboard_preference == PreferredKeyboard.TongFang17Inch)
+                layoutConfigPath = Path.Combine(layoutsPath, "tongfang17.json");
 
             else
             {

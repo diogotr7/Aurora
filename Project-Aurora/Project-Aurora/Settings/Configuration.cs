@@ -247,6 +247,9 @@ namespace Aurora.Settings
 
         [Description("TongFang 15")]
         TongFang15Inch = 1200,
+
+        [Description("TongFang 17")]
+        TongFang17Inch = 1201,
     }
 
     public enum PreferredKeyboardLocalization
