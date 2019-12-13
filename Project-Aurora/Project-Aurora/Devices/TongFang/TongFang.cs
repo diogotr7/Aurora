@@ -44,7 +44,7 @@ namespace Aurora.Devices.TongFang
                     new Aurora.Utils.RealColor(System.Drawing.Color.FromArgb(255, 255, 255, 255)),
                     new Aurora.Utils.RealColor(System.Drawing.Color.FromArgb(0, 0, 0, 0)));
                 default_registry.Register($"{deviceName}_brightness", 50, "Brightness", 100, 1, "In percent");
-                default_registry.Register($"{deviceName}_ansi", true, "ANSI layout", remark: "All options require a restart of the device integration.");
+                default_registry.Register($"{deviceName}_layout", Layout.ANSI15, "Layout", remark: "All options require a restart of the device integration.");
                 default_registry.Register($"{deviceName}_scalar_r", 255, "Red Scalar", 255, 0);
                 default_registry.Register($"{deviceName}_scalar_g", 255, "Green Scalar", 255, 0);
                 default_registry.Register($"{deviceName}_scalar_b", 255, "Blue Scalar", 255, 0);
@@ -54,7 +54,7 @@ namespace Aurora.Devices.TongFang
 
         public bool Initialize()
         {
-            var layout = Global.Configuration.VarRegistry.GetVariable<bool>($"{deviceName}_ansi") ? Layout.ANSI : Layout.ISO;
+            var layout = Global.Configuration.VarRegistry.GetVariable<Layout>($"{deviceName}_ansi");
             var brightness = Global.Configuration.VarRegistry.GetVariable<int>($"{deviceName}_brightness");
 
             if (Keyboard.Initialize(brightness, layout))
