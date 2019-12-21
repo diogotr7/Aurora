@@ -54,7 +54,7 @@ namespace Aurora.Devices.TongFang
 
         public bool Initialize()
         {
-            var layout = Global.Configuration.VarRegistry.GetVariable<Layout>($"{deviceName}_ansi");
+            var layout = Global.Configuration.VarRegistry.GetVariable<Layout>($"{deviceName}_layout");
             var brightness = Global.Configuration.VarRegistry.GetVariable<int>($"{deviceName}_brightness");
 
             if (Keyboard.Initialize(brightness, layout))
