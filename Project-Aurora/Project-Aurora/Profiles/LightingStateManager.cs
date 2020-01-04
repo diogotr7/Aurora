@@ -107,54 +107,85 @@ namespace Aurora.Profiles
             runningProcessMonitor = new RunningProcessMonitor();
 
             #region Initiate Defaults
-            RegisterEvents(new List<ILightEvent> {
-                new Desktop.Desktop(),
-                new Dota_2.Dota2(),
-                new CSGO.CSGO(),
-                new GTA5.GTA5(),
-                new RocketLeague.RocketLeague(),
-                new Borderlands2.Borderlands2(),
-                new Overwatch.Overwatch(),
-                new Payday_2.PD2(),
-                new TheDivision.TheDivision(),
-                new LeagueOfLegends.LoL(),
-                new HotlineMiami.HotlineMiami(),
-                new TheTalosPrinciple.TalosPrinciple(),
-                new BF3.BF3(),
-                new Blacklight.Blacklight(),
-                new Magic_Duels_2012.MagicDuels2012(),
-                new ShadowOfMordor.ShadowOfMordor(),
-                new Serious_Sam_3.SSam3(),
-                new DiscoDodgeball.DiscoDodgeballApplication(),
-                new XCOM.XCOM(),
-                new Evolve.Evolve(),
-                new Metro_Last_Light.MetroLL(),
-                new Guild_Wars_2.GW2(),
-                new WormsWMD.WormsWMD(),
-                new Blade_and_Soul.BnS(),
-                new Skype.Skype(),
-                new ROTTombRaider.ROTTombRaider(),
-                new DyingLight.DyingLight(),
-                new ETS2.ETS2(),
-                new ATS.ATS(),
-                new Move_or_Die.MoD(),
-                new QuantumConumdrum.QuantumConumdrum(),
-                new Battlefield1.Battlefield1(),
-                new Dishonored.Dishonored(),
-                new Witcher3.Witcher3(),
-                new Minecraft.Minecraft(),
-                new KillingFloor2.KillingFloor2(),
-                new DOOM.DOOM(),
-                new Factorio.Factorio(),
-                new QuakeChampions.QuakeChampions(),
-                new Diablo3.Diablo3(),
-                new DeadCells.DeadCells(),
-                new Subnautica.Subnautica(),
-                new ResidentEvil2.ResidentEvil2(),
-                new CloneHero.CloneHero(),
-                new Osu.Osu(),
-                new Slime_Rancher.Slime_Rancher()
-            });
+            RegisterEvent(new Desktop.Desktop());
+
+            string profileDllFolder = Path.Combine(Global.ExecutingDirectory, "Plugins", "Applications");
+
+
+            Global.logger.Info("Loading Profile Plugins");
+            if (Directory.Exists(profileDllFolder))
+            {
+                foreach (var deviceDll in Directory.EnumerateFiles(profileDllFolder, "Application-*.dll"))
+                {
+                    try
+                    {
+                        var deviceAssembly = Assembly.LoadFile(deviceDll);
+
+                        foreach (var type in deviceAssembly.GetExportedTypes())
+                        {
+                            if (typeof(ILightEvent).IsAssignableFrom(type))
+                            {
+                                ILightEvent profileDll = (ILightEvent)Activator.CreateInstance(type);
+
+                                RegisterEvent(profileDll);
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Global.logger.Error($"Error loading Profile dll: {deviceDll}. Exception: {e.Message}");
+                    }
+                }
+            }
+
+            //RegisterEvents(new List<ILightEvent> {
+            //    new Desktop.Desktop(),
+            //    new Dota_2.Dota2(),
+            //    new CSGO.CSGO(),
+            //    new GTA5.GTA5(),
+            //    new RocketLeague.RocketLeague(),
+            //    new Borderlands2.Borderlands2(),
+            //    new Overwatch.Overwatch(),
+            //    new Payday_2.PD2(),
+            //    new TheDivision.TheDivision(),
+            //    new LeagueOfLegends.LoL(),
+            //    new HotlineMiami.HotlineMiami(),
+            //    new TheTalosPrinciple.TalosPrinciple(),
+            //    new BF3.BF3(),
+            //    new Blacklight.Blacklight(),
+            //    new Magic_Duels_2012.MagicDuels2012(),
+            //    new ShadowOfMordor.ShadowOfMordor(),
+            //    new Serious_Sam_3.SSam3(),
+            //    new DiscoDodgeball.DiscoDodgeballApplication(),
+            //    new XCOM.XCOM(),
+            //    new Evolve.Evolve(),
+            //    new Metro_Last_Light.MetroLL(),
+            //    new Guild_Wars_2.GW2(),
+            //    new WormsWMD.WormsWMD(),
+            //    new Blade_and_Soul.BnS(),
+            //    new Skype.Skype(),
+            //    new ROTTombRaider.ROTTombRaider(),
+            //    new DyingLight.DyingLight(),
+            //    new ETS2.ETS2(),
+            //    new ATS.ATS(),
+            //    new Move_or_Die.MoD(),
+            //    new QuantumConumdrum.QuantumConumdrum(),
+            //    new Battlefield1.Battlefield1(),
+            //    new Dishonored.Dishonored(),
+            //    new Witcher3.Witcher3(),
+            //    new Minecraft.Minecraft(),
+            //    new KillingFloor2.KillingFloor2(),
+            //    new DOOM.DOOM(),
+            //    new Factorio.Factorio(),
+            //    new QuakeChampions.QuakeChampions(),
+            //    new Diablo3.Diablo3(),
+            //    new DeadCells.DeadCells(),
+            //    new Subnautica.Subnautica(),
+            //    new ResidentEvil2.ResidentEvil2(),
+            //    new CloneHero.CloneHero(),
+            //    new Osu.Osu(),
+            //    new Slime_Rancher.Slime_Rancher()
+            //});
 
             RegisterLayerHandlers(new List<LayerHandlerEntry> {
                 new LayerHandlerEntry("Default", "Default Layer", typeof(DefaultLayerHandler)),

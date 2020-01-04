@@ -100,7 +100,7 @@ namespace Aurora.Profiles
 
         #region Internal Properties
         protected ImageSource icon;
-        public virtual ImageSource Icon => icon ?? (icon = new BitmapImage(new Uri(Config.IconURI, UriKind.Relative)));
+        public virtual ImageSource Icon => icon ?? (icon = new BitmapImage(new Uri(Config.IconURI, UriKind.RelativeOrAbsolute)));
 
         protected UserControl control;
         public virtual UserControl Control { get { return control ?? (control = (UserControl)Activator.CreateInstance(this.Config.OverviewControlType, this)); } }
