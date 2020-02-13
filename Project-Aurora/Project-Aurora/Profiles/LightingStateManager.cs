@@ -155,7 +155,8 @@ namespace Aurora.Profiles
                 new Osu.Osu(),
                 new Slime_Rancher.Slime_Rancher(),
                 new Terraria.Terraria(),
-                new Discord.Discord()              
+                new Discord.Discord(),
+                new Fallout4.Falout4()
             });
 
             RegisterLayerHandlers(new List<LayerHandlerEntry> {
