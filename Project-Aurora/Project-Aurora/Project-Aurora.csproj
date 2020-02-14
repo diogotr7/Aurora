@@ -398,9 +398,15 @@
     <Compile Include="Profiles\Fallout4\Control_Fallout4.xaml.cs">
       <DependentUpon>Control_Fallout4.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Profiles\Fallout4\Fallout4Profile.cs" />
     <Compile Include="Profiles\Fallout4\Falout4Application.cs" />
     <Compile Include="Profiles\Fallout4\GameEvent_Fallout4.cs" />
     <Compile Include="Profiles\Fallout4\GSI\GameState_Fallout4.cs" />
+    <Compile Include="Profiles\Fallout4\GSI\Nodes\PipBoyColorNode.cs" />
+    <Compile Include="Profiles\Fallout4\GSI\Nodes\PlayerNode.cs" />
+    <Compile Include="Profiles\Fallout4\GSI\Nodes\SPECIALNode.cs" />
+    <Compile Include="Profiles\Fallout4\GSI\Nodes\StatsNode.cs" />
+    <Compile Include="Profiles\Fallout4\GSI\Nodes\StatusNode.cs" />
     <Compile Include="Profiles\RocketLeague\GSI\Nodes\Team.cs" />
     <Compile Include="Profiles\RocketLeague\Layers\RocketLeagueGoalExplosionLayerHandler.cs" />
     <Compile Include="Profiles\Osu\GSI\Enums.cs" />

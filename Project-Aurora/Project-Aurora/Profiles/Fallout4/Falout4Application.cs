@@ -14,7 +14,7 @@ namespace Aurora.Profiles.Fallout4
             ID = "fallout4",
             AppID = "377160",
             ProcessNames = new[] { "fallout4.exe" },
-            ProfileType = typeof(Generic_Application.GenericApplicationProfile),
+            ProfileType = typeof(Fallout4Profile),
             OverviewControlType = typeof(Control_Fallout4),
             GameStateType = typeof(GSI.GameState_Fallout4),
             Event = new GameEvent_Fallout4(),
