@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29418.71
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2042
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Project-Aurora", "Project-Aurora\Project-Aurora.csproj", "{18D2D471-3F57-4ECE-9C62-836A801473D8}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -51,6 +51,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Device-Corsair", "Devices\Device-Corsair\Device-Corsair.csproj", "{664D2805-A9DC-4F8A-95E3-549F7764D915}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Device-CoolerMaster", "Devices\Device-CoolerMaster\Device-CoolerMaster.csproj", "{B1019E06-112E-4BE0-924C-F2E06375C4E4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Device-Asus", "Devices\Device-Asus\Device-Asus.csproj", "{FF50141C-6B1B-43E2-A7D6-B4F2CA083287}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -198,6 +200,14 @@ Global
 		{B1019E06-112E-4BE0-924C-F2E06375C4E4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B1019E06-112E-4BE0-924C-F2E06375C4E4}.Release|x64.ActiveCfg = Release|Any CPU
 		{B1019E06-112E-4BE0-924C-F2E06375C4E4}.Release|x64.Build.0 = Release|Any CPU
+		{FF50141C-6B1B-43E2-A7D6-B4F2CA083287}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF50141C-6B1B-43E2-A7D6-B4F2CA083287}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF50141C-6B1B-43E2-A7D6-B4F2CA083287}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FF50141C-6B1B-43E2-A7D6-B4F2CA083287}.Debug|x64.Build.0 = Debug|Any CPU
+		{FF50141C-6B1B-43E2-A7D6-B4F2CA083287}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF50141C-6B1B-43E2-A7D6-B4F2CA083287}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF50141C-6B1B-43E2-A7D6-B4F2CA083287}.Release|x64.ActiveCfg = Release|Any CPU
+		{FF50141C-6B1B-43E2-A7D6-B4F2CA083287}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -211,6 +221,7 @@ Global
 		{E707943E-2811-445C-BCAC-F25234930902} = {7956DBBB-678F-4981-AFF5-013929FDB5B1}
 		{664D2805-A9DC-4F8A-95E3-549F7764D915} = {7956DBBB-678F-4981-AFF5-013929FDB5B1}
 		{B1019E06-112E-4BE0-924C-F2E06375C4E4} = {7956DBBB-678F-4981-AFF5-013929FDB5B1}
+		{FF50141C-6B1B-43E2-A7D6-B4F2CA083287} = {7956DBBB-678F-4981-AFF5-013929FDB5B1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {490F6EB6-991A-412C-B8F2-336A989F162A}
