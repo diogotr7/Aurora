@@ -1,6 +1,6 @@
 ﻿using Aurora.Devices;
-using Colore.Effects.Keyboard;
-using Colore.Effects.Mouse;
+using Corale.Colore.Razer.Keyboard;
+using Corale.Colore.Razer.Mouse;
 using System;
 using System.Collections.Generic;
 using System.Linq;

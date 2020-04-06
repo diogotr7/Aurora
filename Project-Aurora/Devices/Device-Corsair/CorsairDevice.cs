@@ -7,23 +7,21 @@ using System.Linq;
 
 namespace Device_Corsair
 {
-    public class CorsairDevice : Device
+    public class CorsairDeviceConnector : AuroraDeviceConnector
     {
-        protected override string DeviceName => "Corsair";
+        protected override string ConnectorName => "Corsair";
         private readonly List<CorsairDeviceInfo> deviceInfos = new List<CorsairDeviceInfo>();
 
-        public override string GetDeviceDetails() => isInitialized ?
-                                                    DeviceName + ": " + GetSubDeviceDetails() :
-                                                    DeviceName + ": Not Initialized";
+        protected override string ConnectorSubDetails => GetSubDeviceDetails();
 
-        public override bool Initialize()
+        protected override bool InitializeImpl()
         {
             CUE.PerformProtocolHandshake();
             var error = CUE.GetLastError();
             if (error != CorsairError.Success)
             {
                 LogError("Corsair Error: " + error);
-                return isInitialized = false;
+                return false;
             }
 
             for (int i = 0; i < CUE.GetDeviceCount(); i++)
@@ -32,35 +30,93 @@ namespace Device_Corsair
             if (!CUE.RequestControl())
             {
                 LogError("Error requesting cuesdk exclusive control:" + CUE.GetLastError());
-                return isInitialized = false;
+                return false;
             }
+            for (int i = 0; i < deviceInfos.Count; i++)
+                devices.Add(new CorsairDevice(deviceInfos[i], i));
 
-            return isInitialized = true;
+            return devices.Any();
         }
 
-        public override void Shutdown()
+        protected override void RunFirstTime()
         {
-            isInitialized = false;
+            Aurora.App.Current.Dispatcher.Invoke(() =>
+            {
+                CorsairInstallInstructions instructions = new CorsairInstallInstructions();
+                instructions.ShowDialog();
+            });
+        }
+        protected override void ShutdownImpl()
+        {
             deviceInfos.Clear();
             CUE.ReleaseControl();
         }
 
-        public override bool UpdateDevice(Dictionary<DeviceKeys, Color> keyColors, DoWorkEventArgs e, bool forced = false)
+        protected override void UpdateDevices()
         {
-            for (int i = 0; i < deviceInfos.Count; i++)
-                SetDeviceColors(deviceInfos[i].Type, i, keyColors);
-
-            return CUE.Update();
+            CUE.Update();
         }
 
-        private bool SetDeviceColors(CorsairDeviceType type, int index, Dictionary<DeviceKeys, Color> keyColors)
+        private string GetSubDeviceDetails()
         {
-            var dict = GetLedMap(type);
+            var ret = string.Join(", ", deviceInfos.Select(d => d.Model));
+            foreach (var channels in deviceInfos.Select(d => d.Channels.Channels))
+            {
+                foreach (var channel in channels)
+                {
+                    foreach (var dev in channel.Devices)
+                    {
+                        ret += " " + dev.Type;
+                    }
+                }
+            }
+            return ret;
+        }
+    }
+    public class CorsairDevice : AuroraDevice
+    {
+        CorsairDeviceInfo DeviceInfo;
+        int Index;
+        protected override string DeviceName => DeviceInfo.Model;
+
+        public CorsairDevice(CorsairDeviceInfo deviceInfo, int index)
+        {
+            DeviceInfo = deviceInfo;
+            Index = index;
+        }
+        protected override AuroraDeviceType AuroraDeviceType => GetDeviceType(DeviceInfo.Type);
+        
+        private AuroraDeviceType GetDeviceType(CorsairDeviceType t)
+        {
+            switch (t)
+            {
+                case CorsairDeviceType.Keyboard:
+                    return AuroraDeviceType.Keyboard;
+                case CorsairDeviceType.Mouse:
+                    return AuroraDeviceType.Mouse;
+                case CorsairDeviceType.MouseMat:
+                    return AuroraDeviceType.Mousepad;
+                case CorsairDeviceType.HeadsetStand:
+                    return AuroraDeviceType.HeadsetStand;
+                case CorsairDeviceType.Headset:
+                    return AuroraDeviceType.Headset;
+                case CorsairDeviceType.Cooler:
+                //return AuroraDeviceType.Cooler;
+                case CorsairDeviceType.CommanderPro:
+                case CorsairDeviceType.LightingNodePro:
+                case CorsairDeviceType.MemoryModule:
+                default:
+                    return AuroraDeviceType.Unkown;
+            }
+        }
+    protected override bool UpdateDeviceImpl(DeviceColorComposition composition)
+    {
+            var dict = GetLedMap(DeviceInfo.Type);
             if (dict.Count == 0)
                 return false;
 
             List<CorsairLedColor> colors = new List<CorsairLedColor>();
-            foreach (var led in keyColors)
+            foreach (var led in composition.keyColors)
             {
                 if (dict.TryGetValue(led.Key, out var ledid))
                 {
@@ -73,9 +129,8 @@ namespace Device_Corsair
                     });
                 }
             }
-            return CUE.SetDeviceColors(index, colors.ToArray());
+            return CUE.SetDeviceColors(Index, colors.ToArray());
         }
-
         private Dictionary<DeviceKeys, CorsairLedId> GetLedMap(CorsairDeviceType t)
         {
             switch (t)
@@ -99,21 +154,6 @@ namespace Device_Corsair
                     return new Dictionary<DeviceKeys, CorsairLedId>();
             }
         }
-
-        private string GetSubDeviceDetails()
-        {
-            var ret = string.Join(", ", deviceInfos.Select(d => d.Model));
-            foreach (var channels in deviceInfos.Select(d => d.Channels.Channels))
-            {
-                foreach (var channel in channels)
-                {
-                    foreach(var dev in channel.Devices)
-                    {
-                        ret += " " + dev.Type;
-                    }
-                }
-            }
-            return ret;
-        }
     }
+
 }

@@ -12,4 +12,5 @@
         <Button x:Name="btnToggleEnableDisable" Width="55" Content="Disable" HorizontalAlignment="Right" VerticalAlignment="Center" Click="btnToggleEnableDisable_Click" Margin="0,0,80,0"/>
         <Button x:Name="btnViewOptions" Content="View Options" HorizontalAlignment="Right" VerticalAlignment="Center" Click="btnViewOptions_Click"/>
     </Grid>
+    
 </UserControl>

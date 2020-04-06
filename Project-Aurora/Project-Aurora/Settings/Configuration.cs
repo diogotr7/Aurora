@@ -383,15 +383,6 @@ namespace Aurora.Settings
 
     public class Configuration : Settings
     {
-        //First Time Installs
-        public bool redist_first_time;
-        public bool logitech_first_time;
-        public bool corsair_first_time;
-        public bool razer_first_time;
-        public bool steelseries_first_time;
-        public bool dualshock_first_time;
-        public bool roccat_first_time;
-
         //General Program Settings
         public bool allow_peripheral_devices;
         public bool allow_wrappers_in_background;
@@ -443,6 +434,7 @@ namespace Aurora.Settings
         public bool devices_disable_headset;
         public bool unified_hid_disabled = false;
         public HashSet<Type> devices_disabled;
+        public HashSet<Type> devices_not_first_time;
         public bool OverlaysInPreview;
 
         //Blackout and Night theme
@@ -494,13 +486,6 @@ namespace Aurora.Settings
 
         public Configuration()
         {
-            //First Time Installs
-            redist_first_time = true;
-            logitech_first_time = true;
-            corsair_first_time = true;
-            razer_first_time = true;
-            steelseries_first_time = true;
-            dualshock_first_time = true;
 
             //General Program Settings
             allow_peripheral_devices = true;
@@ -525,8 +510,7 @@ namespace Aurora.Settings
             devices_disable_mouse = false;
             devices_disable_headset = false;
             devices_disabled = new HashSet<Type>();
-            devices_disabled.Add(typeof(Devices.AtmoOrbDevice.AtmoOrbDevice));
-            devices_disabled.Add(typeof(Devices.NZXT.NZXTDevice));
+            devices_not_first_time = new HashSet<Type>();
             OverlaysInPreview = false;
 
             //Blackout and Night theme
@@ -601,7 +585,7 @@ namespace Aurora.Settings
 
             if (!config.unified_hid_disabled)
             {
-                config.devices_disabled.Add(typeof(Devices.UnifiedHID.UnifiedHIDDevice));
+                //config.devices_disabled.Add(typeof(Devices.UnifiedHID.UnifiedHIDDevice));
                 config.unified_hid_disabled = true;
             }
 
@@ -612,7 +596,7 @@ namespace Aurora.Settings
         {
             if (e.ErrorContext.Error.Message.Contains("Aurora.Devices.SteelSeriesHID.SteelSeriesHIDDevice") && e.CurrentObject is HashSet<Type> dd)
             {
-                dd.Add(typeof(Aurora.Devices.UnifiedHID.UnifiedHIDDevice));
+                //dd.Add(typeof(Aurora.Devices.UnifiedHID.UnifiedHIDDevice));
                 e.ErrorContext.Handled = true;
             }
         }

@@ -13,14 +13,14 @@ using Aurora.Utils;
 
 namespace Device_Logitech
 {
-    public class LogitechDevice : Device
+    public class LogitechDeviceConnector : AuroraDeviceConnector
     {
-        protected override string DeviceName => "Logitech";
+        protected override string ConnectorName => "Logitech";
 
-        public override bool Initialize()
+        protected override bool InitializeImpl()
         {
-            if (GlobalVarRegistry.GetVariable<bool>($"{DeviceName}_override"))
-                LogitechGSDK.GHUB = GlobalVarRegistry.GetVariable<DLLType>($"{DeviceName}_dlltype") == DLLType.GHUB;
+            if (GlobalVarRegistry.GetVariable<bool>($"{ConnectorName}_override"))
+                LogitechGSDK.GHUB = GlobalVarRegistry.GetVariable<DLLType>($"{ConnectorName}_dlltype") == DLLType.GHUB;
             else
                 LogitechGSDK.GHUB = Directory.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "LGHUB"));
 
@@ -29,32 +29,27 @@ namespace Device_Logitech
             if (LogitechGSDK.LogiLedInit())
             {
                 LogitechGSDK.LogiLedSaveCurrentLighting();
-                LogitechGSDK.LogiLedSetLighting(GlobalVarRegistry.GetVariable<RealColor>($"{DeviceName}_color").GetDrawingColor());
-                return isInitialized = true;
-            }
 
-            return isInitialized = false;
+                LogitechGSDK.LogiLedSetLighting(GlobalVarRegistry.GetVariable<RealColor>($"{ConnectorName}_color").GetDrawingColor());
+                devices.Add(new LogitechDevice());
+                return true;
+            }
+            LogError("Failed to Initialize Logitech!");
+            return false;
+        }
+        protected override void RunFirstTime()
+        {
+            Aurora.App.Current.Dispatcher.Invoke(() =>
+            {
+                LogitechInstallInstructions instructions = new LogitechInstallInstructions();
+                instructions.ShowDialog();
+            });
         }
 
-        public override void Shutdown()
+        protected override void ShutdownImpl()
         {
-            isInitialized = false;
             LogitechGSDK.LogiLedRestoreLighting();
             LogitechGSDK.LogiLedShutdown();
-        }
-
-        public override bool UpdateDevice(Dictionary<DeviceKeys, System.Drawing.Color> keyColors, DoWorkEventArgs e, bool forced = false)
-        {
-            foreach (var key in keyColors)
-            {
-                if (KeyMap.TryGetValue(key.Key, out var logiKey))
-                    LogitechGSDK.LogiLedSetLightingForKeyWithKeyName(logiKey, key.Value);
-                else if (PeripheralMap.TryGetValue(key.Key, out var peripheral))
-                    LogitechGSDK.LogiLedSetLightingForTargetZone(peripheral.type, peripheral.zone, key.Value);
-                else if(HidCodeMap.TryGetValue(key.Key, out var hidId))
-                    LogitechGSDK.LogiLedSetLightingForKeyWithHidCode(hidId, key.Value);
-            }
-            return true;
         }
 
         protected override void RegisterVariables(VariableRegistry local)
@@ -65,9 +60,27 @@ namespace Device_Logitech
             var white = new RealColor();
             white.SetDrawingColor(Color.White);
 
-            local.Register($"{DeviceName}_color", black, "Default Color", white, black);
-            local.Register($"{DeviceName}_override", false, "Override DLL");
-            local.Register($"{DeviceName}_dlltype", DLLType.LGS, "DLL Type");
+            local.Register($"{ConnectorName}_color", black, "Default Color", white, black);
+            local.Register($"{ConnectorName}_override", false, "Override DLL");
+            local.Register($"{ConnectorName}_dlltype", DLLType.LGS, "DLL Type");
+        }
+
+    }
+    public class LogitechDevice : AuroraDevice
+    {
+
+        protected override bool UpdateDeviceImpl(DeviceColorComposition composition)
+        {
+            foreach (var key in composition.keyColors)
+            {
+                if (KeyMap.TryGetValue(key.Key, out var logiKey))
+                    LogitechGSDK.LogiLedSetLightingForKeyWithKeyName(logiKey, key.Value);
+                else if (PeripheralMap.TryGetValue(key.Key, out var peripheral))
+                    LogitechGSDK.LogiLedSetLightingForTargetZone(peripheral.type, peripheral.zone, key.Value);
+                else if(HidCodeMap.TryGetValue(key.Key, out var hidId))
+                    LogitechGSDK.LogiLedSetLightingForKeyWithHidCode(hidId, key.Value);
+            }
+            return true;
         }
 
         private static readonly Dictionary<DeviceKeys, LedId> KeyMap = new Dictionary<DeviceKeys, LedId>()
@@ -196,6 +209,10 @@ namespace Device_Logitech
             [DeviceKeys.Peripheral_ScrollWheel] = (DeviceType.Mouse, 2),
             [DeviceKeys.MOUSEPADLIGHT1] = (DeviceType.Mousemat, 0)
         };
+
+        protected override string DeviceName => "Logitech";
+
+        protected override AuroraDeviceType AuroraDeviceType => AuroraDeviceType.Keyboard;
 
         private static readonly Dictionary<DeviceKeys, int> HidCodeMap = new Dictionary<DeviceKeys, int>()
         {

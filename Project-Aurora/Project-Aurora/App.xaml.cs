@@ -484,7 +484,6 @@ namespace Aurora
             Global.InputEvents?.Dispose();
             Global.LightingStateManager?.Dispose();
             Global.net_listener?.Stop();
-            Global.dev_manager?.Shutdown();
             Global.dev_manager?.Dispose();
 
             try

@@ -9,18 +9,16 @@ using Microsoft.Win32.TaskScheduler;
 
 namespace Aurora.Devices.ScriptedDevice
 {
-    public class ScriptedDevice : IDevice
+    public class ScriptedDeviceConnector : Aurora.Devices.AuroraDeviceConnector
     {
         private bool crashed = false;
         private readonly dynamic script = null;
 
-        private string devicename = "";
-        private bool isInitialized = false;
+        private string devicename;
 
-        private System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
-        private long lastUpdateTime = 0;
+        protected override string ConnectorName => "Script";
 
-        public ScriptedDevice(dynamic script)
+        public ScriptedDeviceConnector(dynamic script)
         {
             if (
                 (script != null) &&
@@ -41,152 +39,97 @@ namespace Aurora.Devices.ScriptedDevice
             }
         }
 
-        public string GetDeviceDetails()
+        private string GetDeviceDetails()
         {
             if (crashed)
-                return devicename + ": Error!";
+                return " Error!";
 
-            if (isInitialized)
-                return devicename + ": Connected";
-            else
-                return devicename + ": Not initialized";
+            return " Connected";
         }
 
-        public string GetDeviceName()
+        protected override bool InitializeImpl()
         {
-            return devicename;
-        }
-
-        public bool Initialize()
-        {
-            if (!isInitialized)
+            try
             {
-                try
+               if (script.Initialize())
                 {
-                    isInitialized = script.Initialize();
+                    devices.Add(new ScriptedDevice(script));
+                    return true;
                 }
-                catch (Exception exc)
-                {
-                    Global.logger.Error("Device script for {0} encountered an error during Initialization. Exception: {1}", devicename, exc);
-                    crashed = true;
-                    isInitialized = false;
+                return false;
 
-                    return false;
-                }
             }
-
-            return isInitialized && !crashed;
-        }
-
-        public bool IsConnected()
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool IsInitialized()
-        {
-            return isInitialized && !crashed;
-        }
-
-        public bool IsKeyboardConnected()
-        {
-            return isInitialized && !crashed;
-        }
-
-        public bool IsPeripheralConnected()
-        {
-            return isInitialized && !crashed;
-        }
-
-        public bool Reconnect()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Reset()
-        {
-            if (isInitialized)
+            catch (Exception exc)
             {
-                try
-                {
-                    script.Reset();
-                }
-                catch (Exception exc)
-                {
-                    Global.logger.Error("Device script for {0} encountered an error during Reset. Exception: {1}", devicename, exc);
-                    crashed = true;
-                    isInitialized = false;
-                }
-            }
-        }
+                Global.logger.Error("Device script for {0} encountered an error during Initialization. Exception: {1}", devicename, exc);
+                crashed = true;
 
-        public void Shutdown()
-        {
-            if (isInitialized)
-            {
-                try
-                {
-                    this.Reset();
-                    script.Shutdown();
-                    isInitialized = false;
-                }
-                catch (Exception exc)
-                {
-                    Global.logger.Error("Device script for {0} encountered an error during Shutdown. Exception: {1}", devicename, exc);
-                    crashed = true;
-                    isInitialized = false;
-                }
-            }
-        }
-
-        public bool UpdateDevice(Dictionary<DeviceKeys, Color> keyColors, DoWorkEventArgs e, bool forced = false)
-        {
-            if (isInitialized)
-            {
-                try
-                {
-                    return script.UpdateDevice(keyColors, forced);
-                }
-                catch (Exception exc)
-                {
-                    Global.logger.Error(
-                        "Device script for {0} encountered an error during UpdateDevice. Exception: {1}",
-                        devicename, exc);
-                    crashed = true;
-                    isInitialized = false;
-
-                    return false;
-                }
-            }
-            else
-            {
                 return false;
             }
         }
 
-        public bool UpdateDevice(DeviceColorComposition colorComposition, DoWorkEventArgs e, bool forced = false)
+        public override void Reset()
         {
-            watch.Restart();
-
-            bool update_result = UpdateDevice(colorComposition.keyColors, e, forced);
-
-            watch.Stop();
-            lastUpdateTime = watch.ElapsedMilliseconds;
-
-            return update_result;
+            try
+            {
+                script.Reset();
+            }
+            catch (Exception exc)
+            {
+                Global.logger.Error("Device script for {0} encountered an error during Reset. Exception: {1}", devicename, exc);
+                crashed = true;
+            }
         }
 
-        public string GetDeviceUpdatePerformance()
+        protected override void ShutdownImpl()
         {
-            return (isInitialized ? lastUpdateTime + " ms" : "");
+            try
+            {
+                this.Reset();
+                script.Shutdown();
+            }
+            catch (Exception exc)
+            {
+                Global.logger.Error("Device script for {0} encountered an error during Shutdown. Exception: {1}", devicename, exc);
+                crashed = true;
+            }
         }
 
-        public VariableRegistry GetRegisteredVariables()
+        public override VariableRegistry GetRegisteredVariables()
         {
             if (script.GetType().GetMethod("GetRegisteredVariables") != null)
                 return script.GetRegisteredVariables();
             else
                 return new VariableRegistry();
+        }
+    }
+    public class ScriptedDevice : Aurora.Devices.AuroraDevice
+    {
+        private bool crashed = false;
+        private readonly dynamic script = null;
+        protected override string DeviceName => script.devicename;
+        public ScriptedDevice(dynamic script)
+        {
+                this.script = script;
+        }
+
+        protected override AuroraDeviceType AuroraDeviceType => throw new NotImplementedException();
+
+        protected override bool UpdateDeviceImpl(DeviceColorComposition composition)
+        {
+            try
+            {
+                return script.UpdateDevice(composition.keyColors);
+            }
+            catch (Exception exc)
+            {
+                Global.logger.Error(
+                    "Device script for {0} encountered an error during UpdateDevice. Exception: {1}",
+                    DeviceName, exc);
+                crashed = true;
+
+                return false;
+            }
         }
     }
 }

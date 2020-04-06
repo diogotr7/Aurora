@@ -19,7 +19,7 @@ namespace Aurora.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -166,26 +166,6 @@ namespace Aurora.Properties {
         internal static System.Drawing.Bitmap Borderlands2_256x256 {
             get {
                 object obj = ResourceManager.GetObject("Borderlands2_256x256", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap CorsairInstall_Step1 {
-            get {
-                object obj = ResourceManager.GetObject("CorsairInstall_Step1", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap CorsairInstall_Step2 {
-            get {
-                object obj = ResourceManager.GetObject("CorsairInstall_Step2", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -433,56 +413,6 @@ namespace Aurora.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap LogitechInstall_Step1 {
-            get {
-                object obj = ResourceManager.GetObject("LogitechInstall_Step1", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap LogitechInstall_Step2 {
-            get {
-                object obj = ResourceManager.GetObject("LogitechInstall_Step2", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap LogitechInstall_Step3 {
-            get {
-                object obj = ResourceManager.GetObject("LogitechInstall_Step3", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap LogitechInstall_Step4 {
-            get {
-                object obj = ResourceManager.GetObject("LogitechInstall_Step4", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap LogitechInstall_Step5 {
-            get {
-                object obj = ResourceManager.GetObject("LogitechInstall_Step5", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap minecraft_128x128 {
             get {
                 object obj = ResourceManager.GetObject("minecraft_128x128", resourceCulture);
@@ -563,26 +493,6 @@ namespace Aurora.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap RazerInstall_Step1 {
-            get {
-                object obj = ResourceManager.GetObject("RazerInstall_Step1", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap RazerInstall_Step2 {
-            get {
-                object obj = ResourceManager.GetObject("RazerInstall_Step2", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap removeprofile_icon {
             get {
                 object obj = ResourceManager.GetObject("removeprofile_icon", resourceCulture);
@@ -636,26 +546,6 @@ namespace Aurora.Properties {
         internal static System.Drawing.Bitmap Skype_300x300 {
             get {
                 object obj = ResourceManager.GetObject("Skype_300x300", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap SteelSeriesInstall_Step1 {
-            get {
-                object obj = ResourceManager.GetObject("SteelSeriesInstall_Step1", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap SteelSeriesInstall_Step2 {
-            get {
-                object obj = ResourceManager.GetObject("SteelSeriesInstall_Step2", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -134,7 +135,7 @@ namespace Aurora.Devices
         /// </summary>
         [Description("Tilde")]
         TILDE = 17,
-        
+
         /// <summary>
         /// One key
         /// </summary>
@@ -1176,7 +1177,7 @@ namespace Aurora.Devices
         /// </summary>
         [Description("Additional Light 27")]
         ADDITIONALLIGHT27 = 188,
-        
+
         /// <summary>
         /// Additional Light 28
         /// </summary>
@@ -1320,210 +1321,17 @@ namespace Aurora.Devices
         public Bitmap keyBitmap;
     }
 
-    /// <summary>
-    /// An interface for a device class.
-    /// </summary>
-    public interface IDevice
+    
+    public enum AuroraDeviceType
     {
-        /// <summary>
-        /// Gets registered variables by this device.
-        /// </summary>
-        /// <returns>Registered Variables</returns>
-        VariableRegistry GetRegisteredVariables();
-
-        /// <summary>
-        /// Gets the device name.
-        /// </summary>
-        /// <returns>Device name</returns>
-        string GetDeviceName();
-
-        /// <summary>
-        /// Gets specific details about the device instance.
-        /// </summary>
-        /// <returns>Details about the device instance</returns>
-        string GetDeviceDetails();
-
-        /// <summary>
-        /// Gets the device update performance.
-        /// </summary>
-        /// <returns>Details about device's update performance</returns>
-        string GetDeviceUpdatePerformance();
-
-        /// <summary>
-        /// Attempts to initialize the device instance.
-        /// </summary>
-        /// <returns>A boolean value representing the success of this call</returns>
-        bool Initialize();
-
-        /// <summary>
-        /// Shuts down the device instance.
-        /// </summary>
-        void Shutdown();
-
-        /// <summary>
-        /// Resets the device instance.
-        /// </summary>
-        void Reset();
-
-        /// <summary>
-        /// Attempts to reconnect the device. [NOT IMPLEMENTED]
-        /// </summary>
-        /// <returns>A boolean value representing the success of this call</returns>
-        bool Reconnect();
-
-        /// <summary>
-        /// Gets the initialization status of this device instance.
-        /// </summary>
-        /// <returns>A boolean value representing the initialization status of this device</returns>
-        bool IsInitialized();
-
-        /// <summary>
-        /// Gets the connection status of this device instance. [NOT IMPLEMENTED]
-        /// </summary>
-        /// <returns>A boolean value representing the connection status of this device</returns>
-        bool IsConnected();
-
-        /// <summary>
-        /// Gets the keyboard connection status for this device instance.
-        /// </summary>
-        /// <returns>A boolean value representing the keyboard connection status of this device</returns>
-        bool IsKeyboardConnected();
-
-        /// <summary>
-        /// Gets the peripheral connection status for this device instance.
-        /// </summary>
-        /// <returns>A boolean value representing the peripheral connection status of this device</returns>
-        bool IsPeripheralConnected();
-
-        /// <summary>
-        /// Updates the device with a specified color arrangement.
-        /// </summary>
-        /// <param name="keyColors">A dictionary of DeviceKeys their corresponding Colors</param>
-        /// <param name="forced">A boolean value indicating whether or not to forcefully update this device</param>
-        /// <returns></returns>
-        bool UpdateDevice(Dictionary<DeviceKeys, Color> keyColors, DoWorkEventArgs e, bool forced = false);
-
-        /// <summary>
-        /// Updates the device with a specified color composition.
-        /// </summary>
-        /// <param name="colorComposition">A struct containing a dictionary of colors as well as the resulting bitmap</param>
-        /// <param name="forced">A boolean value indicating whether or not to forcefully update this device</param>
-        /// <returns></returns>
-        bool UpdateDevice(DeviceColorComposition colorComposition, DoWorkEventArgs e, bool forced = false);
+        Keyboard,
+        Mouse,
+        Headset,
+        Mousepad,
+        HeadsetStand,
+        Unkown
     }
 
-    /// <summary>
-    /// Default Device implementation
-    /// </summary>
-    public abstract class Device : IDevice
-    {
-        protected abstract string DeviceName { get; }
-
-        protected virtual bool isInitialized { get; set; }
-
-        private readonly Stopwatch watch = new Stopwatch();
-
-        private long lastUpdateTime = 0;
-
-        private VariableRegistry variableRegistry;
-
-        protected void LogInfo(string s) => Global.logger.Info(s);
-
-        protected void LogError(string s) => Global.logger.Error(s);
-
-        protected Color CorrectAlpha(Color clr) => Color.FromArgb(255, Utils.ColorUtils.MultiplyColorByScalar(clr, clr.A / 255.0D));
-
-        protected VariableRegistry GlobalVarRegistry => Global.Configuration.VarRegistry;
-
-        public virtual string GetDeviceDetails()
-        {
-            return DeviceName + ": " + (isInitialized ? "Initialized" : "Not initialized");
-        }
-
-        public virtual string GetDeviceName()
-        {
-            return DeviceName;
-        }
-
-        public virtual string GetDeviceUpdatePerformance()
-        {
-            return isInitialized ? lastUpdateTime + " ms" : "";
-        }
-
-        public virtual VariableRegistry GetRegisteredVariables()
-        {
-            if(variableRegistry == null)
-            {
-                variableRegistry = new VariableRegistry();
-                RegisterVariables(variableRegistry);
-            }
-            return variableRegistry;
-        }
-
-        public virtual bool IsInitialized()
-        {
-            return isInitialized;
-        }
-
-        public virtual bool UpdateDevice(DeviceColorComposition colorComposition, DoWorkEventArgs e, bool forced = false)
-        {
-            watch.Restart();
-
-            bool update_result = UpdateDevice(colorComposition.keyColors, e, forced);
-
-            watch.Stop();
-            lastUpdateTime = watch.ElapsedMilliseconds;
-
-            return update_result;
-        }
-
-        public virtual bool IsConnected()
-        {
-            return isInitialized;
-        }
-
-        public virtual bool IsKeyboardConnected()
-        {
-            return isInitialized;
-        }
-
-        public virtual bool IsPeripheralConnected()
-        {
-            return isInitialized;
-        }
-
-        public virtual bool Reconnect()
-        {
-            return isInitialized;
-        }
-
-        public virtual void Reset()
-        {
-            Shutdown();
-            Initialize();
-        }
-
-        /// <summary>
-        /// Only called once when registering variables. Can be empty if not needed
-        /// </summary>
-        protected virtual void RegisterVariables(VariableRegistry local)
-        {
-            //purposefully empty, if varibles are needed, this should be overridden
-        }
-
-        /// <summary>
-        /// Is called first. Initialize the device here
-        /// </summary>
-        public abstract bool Initialize();
-
-        /// <summary>
-        /// Is called last. Dispose of the devices here
-        /// </summary>
-        public abstract void Shutdown();
-
-        /// <summary>
-        /// Is called every frame (30fps). Update the device here
-        /// </summary>
-        public abstract bool UpdateDevice(Dictionary<DeviceKeys, Color> keyColors, DoWorkEventArgs e, bool forced = false);
-    }
 }
+
+   

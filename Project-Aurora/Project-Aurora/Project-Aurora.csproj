@@ -88,17 +88,6 @@
     <Reference Include="Hardcodet.Wpf.TaskbarNotification">
       <HintPath>..\packages\SignedBuild-Hardcodet.NotifyIcon.Wpf.1.0.5\lib\net35\Hardcodet.Wpf.TaskbarNotification.dll</HintPath>
     </Reference>
-    <Reference Include="HidLibrary, Version=3.2.46.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\hidlibrary.3.2.46.0\lib\HidLibrary.dll</HintPath>
-    </Reference>
-    <Reference Include="HidSharp, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\HidSharp.2.1.0\lib\net35\HidSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="Interop.AuraServiceLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\RGB.NET.Devices.Asus.0.1.26\lib\net45\Interop.AuraServiceLib.dll</HintPath>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="IronPython, Version=2.7.8.0, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
       <HintPath>..\packages\IronPython.2.7.8.1\lib\net45\IronPython.dll</HintPath>
     </Reference>
@@ -162,25 +151,9 @@
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="RGB.NET.Brushes, Version=0.1.26.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\RGB.NET.Brushes.0.1.26\lib\net45\RGB.NET.Brushes.dll</HintPath>
-    </Reference>
-    <Reference Include="RGB.NET.Core, Version=0.1.26.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\RGB.NET.Core.0.1.26\lib\net45\RGB.NET.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="RGB.NET.Devices.Asus, Version=0.1.26.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\RGB.NET.Devices.Asus.0.1.26\lib\net45\RGB.NET.Devices.Asus.dll</HintPath>
-    </Reference>
     <Reference Include="RazerSdkWrapper, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\RazerSdkWrapper.dll</HintPath>
-    </Reference>
-    <Reference Include="RGB.NET.Groups, Version=0.1.26.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\RGB.NET.Groups.0.1.26\lib\net45\RGB.NET.Groups.dll</HintPath>
-    </Reference>
-    <Reference Include="Roccat-Talk, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>.\Roccat-Talk.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="SharpDX, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpDX.4.0.1\lib\net45\SharpDX.dll</HintPath>
@@ -326,9 +299,6 @@
       <HintPath>..\packages\Xceed.Wpf.Toolkit.2.9.15603.14400\lib\net40\Xceed.Wpf.Toolkit.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="YeeLightAPI, Version=0.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\YeeLightAPI_SnakePin.0.0.1\lib\netstandard2.0\YeeLightAPI.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.xaml.cs">
@@ -352,12 +322,18 @@
     <Compile Include="Controls\Control_AnimationTrackPresenter.xaml.cs">
       <DependentUpon>Control_AnimationTrackPresenter.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\Control_DeviceConnectorItem.xaml.cs">
+      <DependentUpon>Control_DeviceConnectorItem.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Control_DeviceItem.xaml.cs">
       <DependentUpon>Control_DeviceItem.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\Control_FieldPresenter.xaml.cs">
       <DependentUpon>Control_FieldPresenter.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Devices\AuroraDevice.cs" />
+    <Compile Include="Devices\AuroraDeviceConnector.cs" />
+    <Compile Include="Devices\Razer\RazerLayoutMap.cs" />
     <Compile Include="Profiles\EliteDangerous\EliteConfig.cs" />
     <Compile Include="Profiles\EliteDangerous\EliteDangerousSettings.cs" />
     <Compile Include="Profiles\EliteDangerous\GSI\Nodes\Journal\Events\DockFighter.cs" />
@@ -377,9 +353,6 @@
       <DependentUpon>Control_EliteDangerousAnimationLayer.xaml</DependentUpon>
     </Compile>
     <Compile Include="Profiles\EliteDangerous\Layers\EliteDangerousAnimationLayerHandler.cs" />
-    <Compile Include="Devices\Ducky\DuckyDevice.cs" />
-    <Compile Include="Devices\Ducky\DuckyRGBMappings.cs" />
-    <Compile Include="Devices\UnifiedHID\RoccatTyon.cs" />
     <Compile Include="Profiles\CSGO\Layers\Control_CSGODeathLayer.xaml.cs">
       <DependentUpon>Control_CSGODeathLayer.xaml</DependentUpon>
     </Compile>
@@ -473,42 +446,8 @@
     <Compile Include="Controls\LayerEditor.xaml.cs">
       <DependentUpon>LayerEditor.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Devices\Asus\AsusDevice.cs" />
-    <Compile Include="Devices\Asus\AsusRGBNetBrush.cs" />
-    <Compile Include="Devices\NZXT\NZXTDevice.cs" />
     <Compile Include="Controls\ReorderableListBox.cs" />
-    <Compile Include="Devices\AtmoOrb\AtmoOrbDevice.cs" />
-    <Compile Include="Devices\Clevo\ClevoSetKBLED.cs" />
-    <Compile Include="Devices\Clevo\ClevoDevice.cs" />
-    <Compile Include="Devices\Corsair\CorsairInstallInstructions.xaml.cs">
-      <DependentUpon>CorsairInstallInstructions.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Devices\Creative\SoundBlasterXDevice.cs" />
-    <Compile Include="Devices\LightFX\LightFX.cs" />
-    <Compile Include="Devices\LightFX\LightFXSDK.cs" />
-    <Compile Include="Devices\Logitech\LogitechInstallInstructions.xaml.cs">
-      <DependentUpon>LogitechInstallInstructions.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Devices\NZXT\NZXTLayoutMap.cs" />
-    <Compile Include="Devices\Razer\RazerInstallInstructions.xaml.cs">
-      <DependentUpon>RazerInstallInstructions.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Devices\RGBNet\AbstractRGBNetDevice.cs" />
-    <Compile Include="Devices\RGBNet\AuroraRGBNetBrush.cs" />
-    <Compile Include="Devices\Roccat\RoccatDevice.cs" />
-    <Compile Include="Devices\Roccat\RoccatInstallInstructions.xaml.cs">
-      <DependentUpon>RoccatInstallInstructions.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Devices\ScriptedDevice\ScriptedDevice.cs" />
-    <Compile Include="Devices\UnifiedHID\AsusPugio.cs" />
-    <Compile Include="Devices\UnifiedHID\RivalMouses.cs" />
-    <Compile Include="Devices\UnifiedHID\UnifiedHID.cs" />
-    <Compile Include="Devices\SteelSeries\GameSenseSDK.cs" />
-    <Compile Include="Devices\SteelSeries\SteelSeriesDevice.cs" />
-    <Compile Include="Devices\SteelSeries\SteelSeriesInstallInstructions.xaml.cs">
-      <DependentUpon>SteelSeriesInstallInstructions.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Devices\YeeLight\YeeLightDevice.cs" />
     <Compile Include="EffectsEngine\Animations\AnimationEllipse.cs" />
     <Compile Include="EffectsEngine\Animations\AnimationFill.cs" />
     <Compile Include="EffectsEngine\Animations\AnimationFilledCircle.cs" />
@@ -1100,7 +1039,6 @@
     </Compile>
     <Compile Include="Settings\ObjectSettings.cs" />
     <Compile Include="Settings\PluginManager.cs" />
-    <Compile Include="Devices\SteelSeries\USBHIDCodes.cs" />
     <Compile Include="Utils\JSONUtils.cs" />
     <Compile Include="Utils\MouseUtils.cs" />
     <Compile Include="Utils\HardwareMonitor.cs" />
@@ -1598,9 +1536,6 @@
     <Compile Include="Utils\UIUtils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Interop.AuraServiceLib.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="kb_layouts\Extra Features\images\Asus_Pugio_backlights.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -1647,9 +1582,6 @@
     <Resource Include="Resources\factorio_64x64.png" />
     <Resource Include="Resources\quakechampions_195x195.png" />
     <Resource Include="Resources\diablo3_120x120.png" />
-    <Content Include="LightFX_SDK.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Resource Include="Resources\deadcells_128x128.png" />
     <Resource Include="Resources\Layers_Copy.png" />
     <Resource Include="Resources\Layers_Paste.png" />
@@ -1672,9 +1604,6 @@
     <Content Include="RazerSdkWrapper.dll" />
     <Resource Include="Resources\betterdiscord.png" />
     <Resource Include="Resources\terraria_512x512.png" />
-    <Content Include="RGB.NET.Devices.Asus.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Resource Include="Profiles\Payday 2\GSI\PD2_GSI.zip" />
     <Resource Include="Profiles\Dota 2\GSI\gamestate_integration_aurora.cfg" />
     <Resource Include="Profiles\CSGO\GSI\gamestate_integration_aurora.cfg" />
@@ -1755,6 +1684,10 @@
     <Page Include="Controls\Control_AnimationTrackPresenter.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\Control_DeviceConnectorItem.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Controls\Control_DeviceItem.xaml">
       <SubType>Designer</SubType>
@@ -1859,26 +1792,6 @@
     <Page Include="Controls\LayerEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Devices\Corsair\CorsairInstallInstructions.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Devices\Logitech\LogitechInstallInstructions.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Devices\Razer\RazerInstallInstructions.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Devices\Roccat\RoccatInstallInstructions.xaml">
-      <SubType>Designer</SubType>
-      <Generator>XamlIntelliSenseFileGenerator</Generator>
-    </Page>
-    <Page Include="Devices\SteelSeries\SteelSeriesInstallInstructions.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Page Include="Profiles\ATS\Control_ATS.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -2614,15 +2527,6 @@
     <Content Include="Resources\RazerInstall\Step2.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\NZXTSharp\NZXTSharp\NZXTSharp.csproj">
-      <Project>{62094023-0479-4dd4-8a74-4321cc0f08dd}</Project>
-      <Name>NZXTSharp</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\SBAuroraR.NET\SBAuroraReactive\SBAuroraReactive.vcxproj">
-      <Project>{053a704b-5c79-4cde-b1fc-b952051acaa0}</Project>
-      <Name>SBAuroraReactive</Name>
-      <Private>False</Private>
-    </ProjectReference>
     <ProjectReference Include="..\ColorBox\ColorBox.csproj">
       <Project>{40085232-aced-4cbe-945b-90ba8153c151}</Project>
       <Name>ColorBox</Name>

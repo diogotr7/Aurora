@@ -8,56 +8,62 @@ using DK = Aurora.Devices.DeviceKeys;
 
 namespace Device_CoolerMaster
 {
-    public class CoolerMasterDevice : Device
+    public class CoolerMasterDeviceConnector : AuroraDeviceConnector
     {
-        protected override string DeviceName => "CoolerMaster";
+        protected override string ConnectorName => "CoolerMaster";
         private readonly List<Native.DEVICE_INDEX> InitializedDevices = new List<Native.DEVICE_INDEX>();
 
-        public override string GetDeviceDetails()
-        {
-            return DeviceName + ": " + (isInitialized ?
-              string.Join(" ", InitializedDevices.Select(d => Enum.GetName(typeof(Native.DEVICE_INDEX), d))) :
-              "Not Initialized");
-        }
+        protected override string ConnectorSubDetails => string.Join(" ", InitializedDevices.Select(d => Enum.GetName(typeof(Native.DEVICE_INDEX), d)));
 
-        public override bool Initialize()
+
+        protected override bool InitializeImpl()
         {
             foreach (var device in Native.DEVICES.Where(d => d != Native.DEVICE_INDEX.DEFAULT))
             {
                 if (Native.IsDevicePlug(device) && Native.EnableLedControl(true, device))
+                {
+                    devices.Add(new CoolerMasterDevice(device));
                     InitializedDevices.Add(device);
+                }
+                    
             }
 
-            return isInitialized = InitializedDevices.Any();
+            return InitializedDevices.Any();
         }
 
-        public override void Shutdown()
+        protected override void ShutdownImpl()
         {
             foreach (var dev in InitializedDevices)
                 Native.EnableLedControl(false, dev);
-
-            isInitialized = false;
         }
+    }
 
-        public override bool UpdateDevice(Dictionary<DK, Color> keyColors, DoWorkEventArgs e, bool forced = false)
+    public class CoolerMasterDevice : AuroraKeyboardDevice
+    {
+        private readonly Native.DEVICE_INDEX DevicesIndex;
+        protected override string DeviceName => "CoolerMaster";
+
+        public CoolerMasterDevice(Native.DEVICE_INDEX index)
         {
-            foreach (var dev in InitializedDevices)
+            DevicesIndex = index;
+        }
+        protected override bool UpdateDeviceImpl(DeviceColorComposition composition)
+        {
+
+            Native.COLOR_MATRIX colors = Native.NewColorMatrix();
+            if (!LayoutMapping.TryGetValue(DevicesIndex, out var dict))
+                dict = GenericKeyCoords;
+
+            foreach (var pair in composition.keyColors)
             {
-                Native.COLOR_MATRIX colors = Native.NewColorMatrix();
-                if (!LayoutMapping.TryGetValue(dev, out var dict))
-                    dict = GenericKeyCoords;
-
-                foreach (var pair in keyColors)
-                {
-                    if (dict.TryGetValue(pair.Key, out var c))
-                        colors.KeyColor[c.row, c.column] = new Native.KEY_COLOR(CorrectAlpha(pair.Value));
-                }
-
-                Native.SetAllLedColor(colors, dev);
+                if (dict.TryGetValue(pair.Key, out var c))
+                    colors.KeyColor[c.row, c.column] = new Native.KEY_COLOR(CorrectAlpha(pair.Value));
             }
+
+            Native.SetAllLedColor(colors, DevicesIndex);
+  
             return true;
         }
-
         private static readonly Dictionary<DK, (int row, int column)> GenericKeyCoords = new Dictionary<DK, (int row, int column)>()
         {
             [DK.ESC] = (0, 0),
@@ -450,7 +456,7 @@ namespace Device_CoolerMaster
                 [DK.Peripheral_ScrollWheel] = (0, 1),
                 [DK.Peripheral_FrontLight] = (0, 2),
             },
-            [Native.DEVICE_INDEX.MM530] = new Dictionary<DK, (int row, int column)>() 
+            [Native.DEVICE_INDEX.MM530] = new Dictionary<DK, (int row, int column)>()
             {
                 [DK.Peripheral_Logo] = (0, 0),
                 [DK.Peripheral_ScrollWheel] = (0, 1),

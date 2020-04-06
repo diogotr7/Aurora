@@ -10,19 +10,37 @@ using Vulcan.NET;
 
 namespace Device_Vulcan
 {
-    public class VulcanDevice : Device
+    public class VulcanDeviceConnector : AuroraDeviceConnector
+    {
+        protected override string ConnectorName => "Vulcan";
+
+        protected override bool InitializeImpl()
+        {
+            if (VulcanKeyboard.Initialize())
+            {
+                devices.Add(new VulcanDevice());
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        protected override void ShutdownImpl() => VulcanKeyboard.Disconnect();
+
+       
+    }
+    public class VulcanDevice : AuroraKeyboardDevice
     {
         protected override string DeviceName => "Vulcan";
 
-        protected override bool isInitialized => VulcanKeyboard.IsConnected;
-
-        public override bool Initialize() => VulcanKeyboard.Initialize();
-
-        public override void Shutdown() => VulcanKeyboard.Disconnect();
-
-        public override bool UpdateDevice(Dictionary<DeviceKeys, System.Drawing.Color> keyColors, DoWorkEventArgs e, bool forced = false)
+        protected override bool UpdateDeviceImpl(DeviceColorComposition composition)
         {
-            foreach (var key in keyColors)
+            if (!VulcanKeyboard.IsConnected)
+                Disconnect();
+
+            foreach (var key in composition.keyColors)
             {
                 if (KeyMap.TryGetValue(key.Key, out var vulcanKey))
                     VulcanKeyboard.SetKeyColor(vulcanKey, CorrectAlpha(key.Value));
@@ -30,7 +48,6 @@ namespace Device_Vulcan
 
             return VulcanKeyboard.Update();
         }
-
         public static Dictionary<DeviceKeys, Key> KeyMap = new Dictionary<DeviceKeys, Key>
         {
             [DeviceKeys.ESC] = Key.ESC,
@@ -136,7 +153,9 @@ namespace Device_Vulcan
             [DeviceKeys.NUM_PERIOD] = Key.NUM_PERIOD,
             [DeviceKeys.NUM_MINUS] = Key.NUM_MINUS,
             [DeviceKeys.NUM_PLUS] = Key.NUM_PLUS,
-            [DeviceKeys.NUM_ENTER] = Key.NUM_ENTER
+            [DeviceKeys.NUM_ENTER] = Key.NUM_ENTER,
+            [DeviceKeys.BACKSLASH_UK] = Key.ISO_BACKSLASH,
+            [DeviceKeys.HASHTAG] = Key.ISO_HASH 
         };
     }
 }

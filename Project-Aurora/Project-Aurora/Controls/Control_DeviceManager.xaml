@@ -7,10 +7,10 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300" Loaded="UserControl_Loaded">
     <Grid>
-        <ListBox x:Name="lstDevices" Margin="0,26,0,0" ItemsSource="{Binding ReferenceComparisons, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+        <ListBox x:Name="lstDeviceConnectors" Margin="0,26,0,0" ItemsSource="{Binding ReferenceComparisons, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <local:Control_DeviceItem Device="{Binding}"/>
+                    <local:Control_DeviceConnectorItem DeviceConnector="{Binding}"/>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

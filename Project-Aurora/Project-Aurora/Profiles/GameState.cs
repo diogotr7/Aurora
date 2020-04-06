@@ -214,6 +214,17 @@ namespace Aurora.Profiles
         public bool MicrophoneIsMuted => DefaultAudioInDevice?.AudioEndpointVolume.Mute ?? true;
         #endregion
 
+        #region Device Properties
+        /// <summary>
+        /// Battery level of a dualshock controller
+        /// </summary>
+        //public int DS4Battery => Global.dev_manager.GetInitializedDevices().OfType<Devices.Dualshock.DualshockDevice>().FirstOrDefault()?.Battery ?? 0;
+        /// <summary>
+        /// Whether or not thr dualshock controller is charging
+        /// </summary>
+        //public bool DS4Charging => Global.dev_manager.GetInitializedDevices().OfType<Devices.Dualshock.DualshockDevice>().FirstOrDefault()?.Charging ?? false;
+        #endregion
+
         #region CPU Properties
         /// <summary>
         /// Legacy cpu usage prop, DEPRECATED

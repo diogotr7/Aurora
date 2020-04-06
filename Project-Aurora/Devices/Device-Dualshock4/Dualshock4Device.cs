@@ -11,15 +11,20 @@ using DS4Windows;
 
 namespace Device_Dualshock4
 {
-    class DS4Container
+    class DS4Container : AuroraDevice
     {
         public readonly DS4Device device;
         public readonly ConnectionType connectionType;
         public readonly Color RestoreColor;
+        private DeviceKeys key;
 
         public int Battery { get; private set; }
         public double Latency { get; private set; }
         public bool Charging { get; private set; }
+
+        protected override string DeviceName => "Dualshock 4";
+
+        protected override AuroraDeviceType AuroraDeviceType => throw new NotImplementedException();
 
         public Color sendColor;
         public DS4HapticState state;
@@ -29,6 +34,19 @@ namespace Device_Dualshock4
             connectionType = device.getConnectionType();
             device.Report += Device_Report;
             device.StartUpdate();
+            ConnectionHandler += ConnectionHandling;
+        }
+        private void ConnectionHandling(object sender, EventArgs e)
+        {
+            AuroraDevice device = sender as AuroraDevice;
+            if (device.IsConnected())
+            {
+                key = GlobalVarRegistry.GetVariable<DeviceKeys>($"{DeviceName}_devicekey");
+            }
+            else
+            {
+                Disconnect(GlobalVarRegistry.GetVariable<bool>($"{DeviceName}_disconnect_when_stop"));
+            }
         }
 
         private void Device_Report(object sender, EventArgs e)
@@ -58,7 +76,7 @@ namespace Device_Dualshock4
             device.StopUpdate();
         }
 
-        public string GetDeviceDetails()
+        public override string GetDeviceDetails()
         {
             string details = "";
 
@@ -86,77 +104,55 @@ namespace Device_Dualshock4
                     clr.G == ds4clr.green &&
                     clr.B == ds4clr.blue;
         }
-    }
 
-    public class Dualshock4Device : Device
-    {
-        protected override string DeviceName => "Dualshock 4";
-        private DeviceKeys key;
-        private readonly List<DS4Container> Devices = new List<DS4Container>();
-
-        public override string GetDeviceDetails()
+        protected override bool UpdateDeviceImpl(DeviceColorComposition composition)
         {
-            string details = DeviceName;
-            if (isInitialized)
+            if (composition.keyColors.TryGetValue(key, out var clr))
             {
-                details += $": {Devices.Count} Device{(Devices.Count == 1 ? "" : "s")} Connected: ";
-
-                foreach (var dev in Devices)
-                    details += " #" + (Devices.IndexOf(dev) + 1) + dev.GetDeviceDetails();
-            }
-            else
-            {
-                details += ": Not connected";
-            }
-
-            return details;
-        }
-
-        public override bool Initialize()
-        {
-            if (isInitialized)
-                return true;
-
-            key = GlobalVarRegistry.GetVariable<DeviceKeys>($"{DeviceName}_devicekey");
-            DS4Devices.findControllers();
-            var controllers = DS4Devices.getDS4Controllers();
-
-            foreach (var controller in controllers)
-                Devices.Add(new DS4Container(controller));
-
-            return isInitialized = Devices.Any();
-        }
-
-        public override void Shutdown()
-        {
-            if (!isInitialized)
-                return;
-
-            foreach (var dev in Devices)
-                dev.Disconnect(GlobalVarRegistry.GetVariable<bool>($"{DeviceName}_disconnect_when_stop"));
-
-            DS4Devices.stopControllers();
-            Devices.Clear();
-            isInitialized = false;
-        }
-
-        public override bool UpdateDevice(Dictionary<DeviceKeys, System.Drawing.Color> keyColors, DoWorkEventArgs e, bool forced = false)
-        {
-            if (keyColors.TryGetValue(key, out var clr))
-            {
-                foreach (var dev in Devices)
-                    dev.sendColor = CorrectAlpha(clr);
+                sendColor = CorrectAlpha(clr);
 
                 return true;
             }
 
             return false;
         }
-
         protected override void RegisterVariables(VariableRegistry local)
         {
             local.Register($"{DeviceName}_devicekey", DeviceKeys.Peripheral, "Key to Use", DeviceKeys.MOUSEPADLIGHT15, DeviceKeys.Peripheral_Logo);
             local.Register($"{DeviceName}_disconnect_when_stop", false, "Disconnect when Stopping");
+        }
+    }
+
+    public class Dualshock4Device : AuroraDeviceConnector
+    {
+        protected override string ConnectorName => "Dualshock 4";
+
+        protected override string ConnectorSubDetails => GetSubDetails();
+
+        private string GetSubDetails()
+        {
+            string details = $": {Devices.Count} Device{(Devices.Count == 1 ? "" : "s")} Connected: ";
+
+            foreach (var dev in Devices)
+                details += " #" + (devices.IndexOf(dev) + 1) + dev.GetDeviceDetails();
+            return details;
+        }
+
+        protected override bool InitializeImpl()
+        {
+            DS4Devices.findControllers();
+            var controllers = DS4Devices.getDS4Controllers();
+
+            foreach (var device in controllers)
+            {
+                devices.Add(new DS4Container(device));
+            }
+            return controllers.Any();
+        }
+
+        protected override void ShutdownImpl()
+        {
+            DS4Devices.stopControllers();
         }
     }
 }

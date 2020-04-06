@@ -476,25 +476,17 @@ namespace Aurora.Settings
 
         private void devices_view_first_time_logitech_Click(object sender, RoutedEventArgs e)
         {
-            Devices.Logitech.LogitechInstallInstructions instructions = new Devices.Logitech.LogitechInstallInstructions();
-            instructions.ShowDialog();
         }
 
         private void devices_view_first_time_corsair_Click(object sender, RoutedEventArgs e)
-        {
-            Devices.Corsair.CorsairInstallInstructions instructions = new Devices.Corsair.CorsairInstallInstructions();
-            instructions.ShowDialog();
+        { 
         }
 
         private void devices_view_first_time_razer_Click(object sender, RoutedEventArgs e)
         {
-            Devices.Razer.RazerInstallInstructions instructions = new Devices.Razer.RazerInstallInstructions();
-            instructions.ShowDialog();
         }
         private void devices_view_first_time_steelseries_Click(object sender, RoutedEventArgs e)
         {
-            Devices.SteelSeries.SteelSeriesInstallInstructions instructions = new Devices.SteelSeries.SteelSeriesInstallInstructions();
-            instructions.ShowDialog();
         }
 
         private void devices_view_first_time_dualshock_Click(object sender, RoutedEventArgs e)
@@ -505,8 +497,6 @@ namespace Aurora.Settings
 
         private void devices_view_first_time_roccat_Click(object sender, RoutedEventArgs e)
         {
-            Devices.Roccat.RoccatInstallInstructions instructions = new Devices.Roccat.RoccatInstallInstructions();
-            instructions.ShowDialog();
         }
 
         private void devices_enable_logitech_color_enhance_Checked(object sender, RoutedEventArgs e)
