@@ -13,7 +13,7 @@ namespace Device_Corsair
         private readonly List<CorsairDeviceInfo> deviceInfos = new List<CorsairDeviceInfo>();
 
         public override string GetDeviceDetails() => isInitialized ?
-                                                    DeviceName + ": " + string.Join(" ", deviceInfos.Select(d => d.Model)) :
+                                                    DeviceName + ": " + GetSubDeviceDetails() :
                                                     DeviceName + ": Not Initialized";
 
         public override bool Initialize()
@@ -98,6 +98,22 @@ namespace Device_Corsair
                 default:
                     return new Dictionary<DeviceKeys, CorsairLedId>();
             }
+        }
+
+        private string GetSubDeviceDetails()
+        {
+            var ret = string.Join(", ", deviceInfos.Select(d => d.Model));
+            foreach (var channels in deviceInfos.Select(d => d.Channels.Channels))
+            {
+                foreach (var channel in channels)
+                {
+                    foreach(var dev in channel.Devices)
+                    {
+                        ret += " " + dev.Type;
+                    }
+                }
+            }
+            return ret;
         }
     }
 }

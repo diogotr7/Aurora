@@ -100,8 +100,6 @@ namespace Aurora.Devices
 
         public DeviceManager()
         {
-            //DeviceContainers.Add(new DeviceContainer(new Razer.RazerDevice()));
-            //DeviceContainers.Add(new DeviceContainer(new Roccat.RoccatDevice()));
             //DeviceContainers.Add(new DeviceContainer(new Clevo.ClevoDevice()));
             //DeviceContainers.Add(new DeviceContainer(new AtmoOrbDevice.AtmoOrbDevice()));
             //DeviceContainers.Add(new DeviceContainer(new SteelSeries.SteelSeriesDevice()));
@@ -110,7 +108,6 @@ namespace Aurora.Devices
             //DeviceContainers.Add(new DeviceContainer(new LightFX.LightFxDevice()));
             //DeviceContainers.Add(new DeviceContainer(new YeeLight.YeeLightDevice()));
             //DeviceContainers.Add(new DeviceContainer(new Asus.AsusDevice()));
-            //DeviceContainers.Add(new DeviceContainer(new NZXT.NZXTDevice()));
 
             string devices_scripts_path = System.IO.Path.Combine(Global.ExecutingDirectory, "Scripts", "Devices");
 
@@ -171,7 +168,7 @@ namespace Aurora.Devices
                 {
                     try
                     {
-                        var deviceAssembly = Assembly.LoadFrom(deviceDll);
+                        var deviceAssembly = Assembly.LoadFile(deviceDll);
 
                         foreach (var type in deviceAssembly.GetExportedTypes())
                         {
@@ -183,9 +180,9 @@ namespace Aurora.Devices
                             }
                         }
                     }
-                    catch
+                    catch(Exception e)
                     {
-                        Global.logger.Error("Error loading device dll: " + deviceDll);
+                        Global.logger.Error($"Error loading device dll: {deviceDll}. Exception: {e.Message}");
                     }
                 }
             }
@@ -248,7 +245,7 @@ namespace Aurora.Devices
                 else
                     devicesToRetryNo++;
 
-                Global.logger.Info("Device, " + device.Device.GetDeviceName() + ", was" + (device.Device.IsInitialized() ? "" : " not") + " initialized");
+                Global.logger.Info($"[{device.Device.GetDeviceName()}] {(device.Device.IsInitialized() ? "Initialized successfully." : "Failed to initialize.")}");
             }
 
 
@@ -289,7 +286,7 @@ namespace Aurora.Devices
                     if (device.Device.Initialize())
                         _anyInitialized = true;
 
-                    Global.logger.Info("Device, " + device.Device.GetDeviceName() + ", was" + (device.Device.IsInitialized() ? "" : " not") + " initialized");
+                    LogInitialization(device.Device);
                 }
 
                 retryAttemptsLeft--;
@@ -327,7 +324,7 @@ namespace Aurora.Devices
                 if (device.Device.IsInitialized())
                 {
                     device.Device.Shutdown();
-                    Global.logger.Info("Device, " + device.Device.GetDeviceName() + ", was shutdown");
+                    Global.logger.Info($"[{device.Device.GetDeviceName()}] Shutdown.");
                 }
             }
 
@@ -374,6 +371,11 @@ namespace Aurora.Devices
                 devices_info += "Retries: " + retryAttemptsLeft + "\r\n";
 
             return devices_info;
+        }
+
+        private void LogInitialization(IDevice dev)
+        {
+            Global.logger.Info($"[{dev.GetDeviceName()}] {(dev.IsInitialized() ? "Initialized successfully." : "Failed to initialize.")}");
         }
 
         #region IDisposable Support

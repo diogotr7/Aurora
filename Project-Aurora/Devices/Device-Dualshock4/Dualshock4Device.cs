@@ -11,40 +11,98 @@ using DS4Windows;
 
 namespace Device_Dualshock4
 {
+    class DS4Container
+    {
+        public readonly DS4Device device;
+        public readonly ConnectionType connectionType;
+        public readonly Color RestoreColor;
+
+        public int Battery { get; private set; }
+        public double Latency { get; private set; }
+        public bool Charging { get; private set; }
+
+        public Color sendColor;
+        public DS4HapticState state;
+        public DS4Container(DS4Device _device)
+        {
+            device = _device;
+            connectionType = device.getConnectionType();
+            device.Report += Device_Report;
+            device.StartUpdate();
+        }
+
+        private void Device_Report(object sender, EventArgs e)
+        {
+            Battery = device.Battery;
+            Latency = device.Latency;
+            Charging = device.Charging;
+            if(!ColorsEqual(sendColor, state.LightBarColor))
+            {
+                state.LightBarExplicitlyOff = sendColor.R == 0 && sendColor.G == 0 && sendColor.B == 0;
+                state.LightBarColor = new DS4Color(sendColor);
+                device.pushHapticState(state);
+            }
+        }
+
+        public void Disconnect(bool stop)
+        {
+            device.Report -= Device_Report;
+            state.LightBarExplicitlyOff = sendColor.R == 0 && sendColor.G == 0 && sendColor.B == 0;
+            state.LightBarColor = new DS4Color(RestoreColor);
+            device.pushHapticState(state);
+            if (stop)
+            {
+                device.DisconnectBT();
+                device.DisconnectDongle();
+            }
+            device.StopUpdate();
+        }
+
+        public string GetDeviceDetails()
+        {
+            string details = "";
+
+            switch (connectionType)
+            {
+                case ConnectionType.BT:
+                    details += " over Bluetooth";
+                    break;
+                case ConnectionType.USB:
+                    details += " over USB";
+                    break;
+                case ConnectionType.SONYWA:
+                    details += " over DS4 Wireless adapter";
+                    break;
+            }
+
+            details += Charging ? " ⚡" : " ";
+            details += "🔋" + Battery + "% Delay: " + Latency.ToString("0.00") + " ms";
+            return details;
+        }
+
+        private bool ColorsEqual(Color clr, DS4Color ds4clr)
+        {
+            return clr.R == ds4clr.red &&
+                    clr.G == ds4clr.green &&
+                    clr.B == ds4clr.blue;
+        }
+    }
+
     public class Dualshock4Device : Device
     {
         protected override string DeviceName => "Dualshock 4";
-        public int _battery;
-        public double _latency;
-        public bool _charging;
-        private DS4HapticState _state;
-        private DS4Color _initColor;
-        private DS4Device _device;
         private DeviceKeys key;
-        private Color _sendColor;
+        private readonly List<DS4Container> Devices = new List<DS4Container>();
 
         public override string GetDeviceDetails()
         {
             string details = DeviceName;
             if (isInitialized)
             {
-                details += ": Connected";
+                details += $": {Devices.Count} Device{(Devices.Count == 1 ? "" : "s")} Connected: ";
 
-                switch (_device.getConnectionType())
-                {
-                    case ConnectionType.BT:
-                        details += " over Bluetooth";
-                        break;
-                    case ConnectionType.USB:
-                        details += " over USB";
-                        break;
-                    case ConnectionType.SONYWA:
-                        details += " over DS4 Wireless adapter";
-                        break;
-                }
-
-                details += _charging ? " ⚡" : " ";
-                details += "🔋" + _battery + "% Delay: " + _latency.ToString("0.00") + " ms";
+                foreach (var dev in Devices)
+                    details += " #" + (Devices.IndexOf(dev) + 1) + dev.GetDeviceDetails();
             }
             else
             {
@@ -61,29 +119,12 @@ namespace Device_Dualshock4
 
             key = GlobalVarRegistry.GetVariable<DeviceKeys>($"{DeviceName}_devicekey");
             DS4Devices.findControllers();
-            IEnumerable<DS4Device> devices = DS4Devices.getDS4Controllers();
+            var controllers = DS4Devices.getDS4Controllers();
 
-            if (!devices.Any())
-                return false;
+            foreach (var controller in controllers)
+                Devices.Add(new DS4Container(controller));
 
-            _device = devices.ElementAt(0);
-            _initColor = _device.LightBarColor;
-
-            try
-            {
-                _device.Report += SendColor;
-                _device.Report += UpdateProperties;
-                _device.StartUpdate();
-                isInitialized = true;
-                //LogInfo("Initialized Dualshock");
-            }
-            catch (Exception e)
-            {
-                LogError("Could not initialize Dualshock" + e);
-                isInitialized = false;
-            }
-
-            return isInitialized;
+            return isInitialized = Devices.Any();
         }
 
         public override void Shutdown()
@@ -91,33 +132,21 @@ namespace Device_Dualshock4
             if (!isInitialized)
                 return;
 
-            try
-            {
-                if (GlobalVarRegistry.GetVariable<bool>($"{DeviceName}_disconnect_when_stop"))
-                {
-                    _device.DisconnectBT();
-                    _device.DisconnectDongle();
-                }
+            foreach (var dev in Devices)
+                dev.Disconnect(GlobalVarRegistry.GetVariable<bool>($"{DeviceName}_disconnect_when_stop"));
 
-                _sendColor = _initColor.ToColor;
-                SendColor(null, null);
-
-                _device.StopUpdate();
-                DS4Devices.stopControllers();
-                isInitialized = false;
-            }
-            catch (Exception e)
-            {
-                LogError("There was an error shutting down DualShock: " + e);
-                isInitialized = true;
-            }
+            DS4Devices.stopControllers();
+            Devices.Clear();
+            isInitialized = false;
         }
 
         public override bool UpdateDevice(Dictionary<DeviceKeys, System.Drawing.Color> keyColors, DoWorkEventArgs e, bool forced = false)
         {
             if (keyColors.TryGetValue(key, out var clr))
             {
-                _sendColor = CorrectAlpha(clr);
+                foreach (var dev in Devices)
+                    dev.sendColor = CorrectAlpha(clr);
+
                 return true;
             }
 
@@ -128,20 +157,6 @@ namespace Device_Dualshock4
         {
             local.Register($"{DeviceName}_devicekey", DeviceKeys.Peripheral, "Key to Use", DeviceKeys.MOUSEPADLIGHT15, DeviceKeys.Peripheral_Logo);
             local.Register($"{DeviceName}_disconnect_when_stop", false, "Disconnect when Stopping");
-        }
-
-        private void SendColor(object sender, EventArgs e)
-        {
-            _state.LightBarExplicitlyOff = _sendColor.R == 0 && _sendColor.G == 0 && _sendColor.B == 0;
-            _state.LightBarColor = new DS4Color(_sendColor.R, _sendColor.G, _sendColor.B);
-            _device.pushHapticState(_state);
-        }
-
-        private void UpdateProperties(object sender, EventArgs e)
-        {
-            _battery = _device.getBattery();
-            _latency = _device.Latency;
-            _charging = _device.isCharging();
         }
     }
 }

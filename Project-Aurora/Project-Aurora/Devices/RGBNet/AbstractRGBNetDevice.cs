@@ -5,7 +5,6 @@ using System.Linq;
 using Aurora.Settings;
 using RGB.NET.Brushes;
 using RGB.NET.Core;
-using RGB.NET.Devices.Corsair;
 using RGB.NET.Groups;
 using Color = System.Drawing.Color;
 

@@ -182,7 +182,7 @@ namespace Aurora.Settings.Layers
         private bool TryGetColor(DeviceKeys key, out Color color)
         {
             color = Color.Transparent;
-            if (RazerLayoutMap.GenericKeyboard.TryGetValue(key, out var position))
+            if (DeviceKeysUtils.Razer.GenericKeyboard.TryGetValue(key, out var position))
                 color = _keyboardColors[position[1] + position[0] * 22];
             else if (key >= DeviceKeys.MOUSEPADLIGHT1 && key <= DeviceKeys.MOUSEPADLIGHT15)
                 color = _mousepadColors[DeviceKeys.MOUSEPADLIGHT15 - key];

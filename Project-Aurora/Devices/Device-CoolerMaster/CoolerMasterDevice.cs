@@ -12,11 +12,6 @@ namespace Device_CoolerMaster
     {
         protected override string DeviceName => "CoolerMaster";
         private readonly List<Native.DEVICE_INDEX> InitializedDevices = new List<Native.DEVICE_INDEX>();
-        private readonly Native.COLOR_MATRIX colors =
-            new Native.COLOR_MATRIX()
-            {
-                KeyColor = new Native.KEY_COLOR[Native.MAX_LED_ROW, Native.MAX_LED_COLUMN]
-            };
 
         public override string GetDeviceDetails()
         {
@@ -28,32 +23,36 @@ namespace Device_CoolerMaster
         public override bool Initialize()
         {
             foreach (var device in Native.DEVICES.Where(d => d != Native.DEVICE_INDEX.DEFAULT))
+            {
                 if (Native.IsDevicePlug(device) && Native.EnableLedControl(true, device))
                     InitializedDevices.Add(device);
+            }
 
-            return InitializedDevices.Any();
+            return isInitialized = InitializedDevices.Any();
         }
 
         public override void Shutdown()
         {
             foreach (var dev in InitializedDevices)
                 Native.EnableLedControl(false, dev);
+
+            isInitialized = false;
         }
 
         public override bool UpdateDevice(Dictionary<DK, Color> keyColors, DoWorkEventArgs e, bool forced = false)
         {
             foreach (var dev in InitializedDevices)
             {
-                if (LayoutMapping.TryGetValue(dev, out var dict))
+                Native.COLOR_MATRIX colors = Native.NewColorMatrix();
+                if (!LayoutMapping.TryGetValue(dev, out var dict))
+                    dict = GenericKeyCoords;
+
+                foreach (var pair in keyColors)
                 {
-                    foreach (var pair in keyColors)
-                    {
-                        if (dict.TryGetValue(pair.Key, out var c))
-                        {
-                            colors.KeyColor[c.row, c.column] = new Native.KEY_COLOR(CorrectAlpha(pair.Value));
-                        }
-                    }
+                    if (dict.TryGetValue(pair.Key, out var c))
+                        colors.KeyColor[c.row, c.column] = new Native.KEY_COLOR(CorrectAlpha(pair.Value));
                 }
+
                 Native.SetAllLedColor(colors, dev);
             }
             return true;
@@ -445,8 +444,18 @@ namespace Device_CoolerMaster
                 [DK.Peripheral_Logo] = (0, 0),
                 [DK.Peripheral_ScrollWheel] = (0, 1)
             },
-            [Native.DEVICE_INDEX.MM520] = new Dictionary<DK, (int row, int column)>(),
-            [Native.DEVICE_INDEX.MM530] = new Dictionary<DK, (int row, int column)>(),
+            [Native.DEVICE_INDEX.MM520] = new Dictionary<DK, (int row, int column)>()
+            {
+                [DK.Peripheral_Logo] = (0, 0),
+                [DK.Peripheral_ScrollWheel] = (0, 1),
+                [DK.Peripheral_FrontLight] = (0, 2),
+            },
+            [Native.DEVICE_INDEX.MM530] = new Dictionary<DK, (int row, int column)>() 
+            {
+                [DK.Peripheral_Logo] = (0, 0),
+                [DK.Peripheral_ScrollWheel] = (0, 1),
+                [DK.Peripheral_FrontLight] = (0, 2),
+            },
             [Native.DEVICE_INDEX.MM830] = new Dictionary<DK, (int row, int column)>()
         };
     }

@@ -121,6 +121,8 @@ namespace Device_CoolerMaster
             public KEY_COLOR[,] KeyColor;
         };
 
+        public static COLOR_MATRIX NewColorMatrix() => new COLOR_MATRIX() { KeyColor = new KEY_COLOR[MAX_LED_ROW, MAX_LED_COLUMN] };
+
         #region DllImport
         [DllImport(dll)]
         public static extern int GetCM_SDK_DllVer();
