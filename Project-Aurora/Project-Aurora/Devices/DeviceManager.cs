@@ -162,6 +162,7 @@ namespace Aurora.Devices
             string deviceDllFolder = Path.Combine(Global.ExecutingDirectory, "Plugins", "Devices");
 
             Global.logger.Info("Loading Device Plugins");
+            AppDomain.CurrentDomain.AppendPrivatePath(@"Plugins\Devices");
             if (Directory.Exists(deviceDllFolder))
             {
                 foreach (var deviceDll in Directory.EnumerateFiles(deviceDllFolder, "Device-*.dll"))
