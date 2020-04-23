@@ -99,14 +99,14 @@ namespace Device_Dualshock4
             string details = DeviceName;
             if (isInitialized)
             {
-                details += $": {Devices.Count} Device{(Devices.Count == 1 ? "" : "s")} Connected: ";
+                details += $": {Devices.Count} Device{(Devices.Count == 1 ? "" : "s")} Initialized: ";
 
                 foreach (var dev in Devices)
                     details += " #" + (Devices.IndexOf(dev) + 1) + dev.GetDeviceDetails();
             }
             else
             {
-                details += ": Not connected";
+                details += ": Not initialized";
             }
 
             return details;
