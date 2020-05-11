@@ -12,18 +12,18 @@ namespace Device_Corsair
         protected override string DeviceName => "Corsair";
         private readonly List<CorsairDeviceInfo> deviceInfos = new List<CorsairDeviceInfo>();
 
-        public override string GetDeviceDetails() => isInitialized ?
+        public override string GetDeviceDetails() => IsInitialized() ?
                                                     DeviceName + ": " + GetSubDeviceDetails() :
                                                     DeviceName + ": Not Initialized";
 
-        public override bool Initialize()
+        protected override bool InitializeImpl()
         {
             CUE.PerformProtocolHandshake();
             var error = CUE.GetLastError();
             if (error != CorsairError.Success)
             {
                 LogError("Corsair Error: " + error);
-                return isInitialized = false;
+                return false;
             }
 
             for (int i = 0; i < CUE.GetDeviceCount(); i++)
@@ -32,15 +32,14 @@ namespace Device_Corsair
             if (!CUE.RequestControl())
             {
                 LogError("Error requesting cuesdk exclusive control:" + CUE.GetLastError());
-                return isInitialized = false;
+                return false;
             }
 
-            return isInitialized = true;
+            return true;
         }
 
-        public override void Shutdown()
+        protected override void ShutdownImpl()
         {
-            isInitialized = false;
             deviceInfos.Clear();
             CUE.ReleaseControl();
         }

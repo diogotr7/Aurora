@@ -13,69 +13,11 @@ using System.Threading;
 
 namespace Aurora.Devices
 {
-    public class DeviceContainer
-    {
-        public IDevice Device { get; set; }
-
-        public BackgroundWorker Worker = new BackgroundWorker();
-        public Thread UpdateThread { get; set; } = null;
-
-        private Tuple<DeviceColorComposition, bool> currentComp = null;
-        private bool newFrame = false;
-
-        public DeviceContainer(IDevice device)
-        {
-            this.Device = device;
-            Worker.DoWork += WorkerOnDoWork;
-            Worker.RunWorkerCompleted += (sender, args) =>
-            {
-                lock (Worker)
-                {
-                    if (newFrame && !Worker.IsBusy)
-                        Worker.RunWorkerAsync();
-                }
-            };
-            //Worker.WorkerSupportsCancellation = true;
-        }
-
-        private void WorkerOnDoWork(object sender, DoWorkEventArgs doWorkEventArgs)
-        {
-            newFrame = false;
-            Device.UpdateDevice(currentComp.Item1, doWorkEventArgs,
-                currentComp.Item2);
-        }
-
-        public void UpdateDevice(DeviceColorComposition composition, bool forced = false)
-        {
-            newFrame = true;
-            currentComp = new Tuple<DeviceColorComposition, bool>(composition, forced);
-            lock (Worker)
-            {
-                if (Worker.IsBusy)
-                    return;
-                else
-                    Worker.RunWorkerAsync();
-            }
-            /*lock (Worker)
-            {
-                try
-                {
-                    if (!Worker.IsBusy)
-                        Worker.RunWorkerAsync();
-                }
-                catch(Exception e)
-                {
-                    Global.logger.LogLine(e.ToString(), Logging_Level.Error);
-                }
-            }*/
-        }
-    }
-
     public class DeviceManager : IDisposable
     {
-        public List<DeviceContainer> DeviceContainers { get; } = new List<DeviceContainer>();
-        public IEnumerable<IDevice> Devices => DeviceContainers.Select(d => d.Device);
-        public IEnumerable<DeviceContainer> InitializedDeviceContainers => DeviceContainers.Where(dc => dc.Device.IsInitialized());
+        public List<Device> DeviceContainers { get; } = new List<Device>();
+        public IEnumerable<IDevice> Devices => DeviceContainers;
+        public IEnumerable<IDevice> InitializedDeviceContainers => DeviceContainers.Where(dc => dc.IsInitialized());
         public IEnumerable<IDevice> InitializedDevices => Devices.Where(d => d.IsInitialized());
 
 
@@ -127,9 +69,10 @@ namespace Aurora.Devices
                                 {
                                     dynamic script = Global.PythonEngine.Operations.CreateInstance(main_type);
 
-                                    IDevice scripted_device = new Devices.ScriptedDevice.ScriptedDevice(script);
+                                    Device scripted_device = new Devices.ScriptedDevice.ScriptedDevice(script);
+                                    scripted_device.DevicesInitialized += NewDevicesInitialized;
 
-                                    DeviceContainers.Add(new DeviceContainer(scripted_device));
+                                    DeviceContainers.Add(scripted_device);
                                 }
                                 else
                                     Global.logger.Error("Script \"{0}\" does not contain a public 'main' class", device_script);
@@ -141,9 +84,10 @@ namespace Aurora.Devices
                                 {
                                     dynamic script = Activator.CreateInstance(typ);
 
-                                    IDevice scripted_device = new Devices.ScriptedDevice.ScriptedDevice(script);
+                                    Device scripted_device = new Devices.ScriptedDevice.ScriptedDevice(script);
+                                    scripted_device.DevicesInitialized += NewDevicesInitialized;
 
-                                    DeviceContainers.Add(new DeviceContainer(scripted_device));
+                                    DeviceContainers.Add(scripted_device);
                                 }
 
                                 break;
@@ -172,11 +116,12 @@ namespace Aurora.Devices
 
                         foreach (var type in deviceAssembly.GetExportedTypes())
                         {
-                            if (typeof(IDevice).IsAssignableFrom(type))
+                            if (typeof(Device).IsAssignableFrom(type))
                             {
-                                IDevice devDll = (IDevice)Activator.CreateInstance(type);
+                                Device devDll = (Device)Activator.CreateInstance(type);
+                                devDll.DevicesInitialized += NewDevicesInitialized;
 
-                                DeviceContainers.Add(new DeviceContainer(devDll));
+                                DeviceContainers.Add(devDll);
                             }
                         }
                     }
@@ -226,7 +171,7 @@ namespace Aurora.Devices
         {
             //Register any variables
             foreach (var device in DeviceContainers)
-                Global.Configuration.VarRegistry.Combine(device.Device.GetRegisteredVariables());
+                Global.Configuration.VarRegistry.Combine(device.GetRegisteredVariables());
         }
 
         public void Initialize(bool forceRetry = false)
@@ -234,28 +179,9 @@ namespace Aurora.Devices
             if (suspended)
                 return;
 
-            int devicesToRetryNo = 0;
-            foreach (DeviceContainer device in DeviceContainers)
-            {
-                if (device.Device.IsInitialized() || Global.Configuration.devices_disabled.Contains(device.Device.GetType()))
-                    continue;
+            DeviceContainers.ForEach(dc => dc.Initialize());
 
-                if (device.Device.Initialize())
-                    anyInitialized = true;
-                else
-                    devicesToRetryNo++;
-
-                Global.logger.Info($"[{device.Device.GetDeviceName()}] {(device.Device.IsInitialized() ? "Initialized successfully." : "Failed to initialize.")}");
-            }
-
-
-            if (anyInitialized)
-            {
-                _InitializeOnceAllowed = true;
-                NewDevicesInitialized?.Invoke(this, new EventArgs());
-            }
-
-            if (devicesToRetryNo > 0 && (retryThread == null || forceRetry || retryThread?.ThreadState == System.Threading.ThreadState.Stopped))
+            if (retryThread == null || forceRetry || retryThread?.ThreadState == System.Threading.ThreadState.Stopped)
             {
                 retryActivated = true;
                 if (forceRetry)
@@ -268,39 +194,21 @@ namespace Aurora.Devices
 
         private void RetryInitialize()
         {
+            Thread.Sleep(retryInterval * 5);
             if (suspended)
                 return;
+
+            _InitializeOnceAllowed = true;
             for (int try_count = 0; try_count < retryAttemps; try_count++)
             {
                 Global.logger.Info("Retrying Device Initialization");
                 if (suspended)
                     continue;
-                int devicesAttempted = 0;
-                bool _anyInitialized = false;
-                foreach (DeviceContainer device in DeviceContainers)
-                {
-                    if (device.Device.IsInitialized() || Global.Configuration.devices_disabled.Contains(device.Device.GetType()))
-                        continue;
 
-                    devicesAttempted++;
-                    if (device.Device.Initialize())
-                        _anyInitialized = true;
-
-                    LogInitialization(device.Device);
-                }
+                DeviceContainers.ForEach(dc => dc.Initialize());
 
                 retryAttemptsLeft--;
 
-                //We don't need to continue the loop if we aren't trying to initialize anything
-                if (devicesAttempted == 0)
-                    break;
-
-                //There is only a state change if something suddenly becomes initialized
-                if (_anyInitialized)
-                {
-                    NewDevicesInitialized?.Invoke(this, new EventArgs());
-                    anyInitialized = true;
-                }
 
                 Thread.Sleep(retryInterval);
             }
@@ -308,7 +216,7 @@ namespace Aurora.Devices
 
         public void InitializeOnce()
         {
-            if (!anyInitialized && _InitializeOnceAllowed)
+            if (!InitializedDeviceContainers.Any() && _InitializeOnceAllowed)
                 Initialize();
         }
 
@@ -319,43 +227,30 @@ namespace Aurora.Devices
 
         public void Shutdown()
         {
-            foreach (DeviceContainer device in DeviceContainers)
-            {
-                if (device.Device.IsInitialized())
-                {
-                    device.Device.Shutdown();
-                    Global.logger.Info($"[{device.Device.GetDeviceName()}] Shutdown.");
-                }
-            }
+            DeviceContainers.ForEach(dc => dc.Shutdown());
 
             anyInitialized = false;
         }
 
         public void ResetDevices()
         {
-            foreach (DeviceContainer device in DeviceContainers)
-            {
-                if (device.Device.IsInitialized())
-                {
-                    device.Device.Reset();
-                }
-            }
+            DeviceContainers.ForEach(dc => dc.Reset());
         }
 
         public void UpdateDevices(DeviceColorComposition composition, bool forced = false)
         {
-            foreach (DeviceContainer device in DeviceContainers)
+            foreach (var device in DeviceContainers)
             {
-                if (device.Device.IsInitialized())
+                if (device.IsInitialized())
                 {
-                    if (Global.Configuration.devices_disabled.Contains(device.Device.GetType()))
+                    if (Global.Configuration.devices_disabled.Contains(device.GetType()))
                     {
                         //Initialized when it's supposed to be disabled? SMACK IT!
-                        device.Device.Shutdown();
+                        device.Shutdown();
                         continue;
                     }
 
-                    device.UpdateDevice(composition, forced);
+                    device.UpdateDevice(composition, new DoWorkEventArgs(this), forced);
                 }
             }
         }
@@ -364,18 +259,13 @@ namespace Aurora.Devices
         {
             string devices_info = "";
 
-            foreach (DeviceContainer device in DeviceContainers)
-                devices_info += device.Device.GetDeviceDetails() + "\r\n";
+            foreach (var device in DeviceContainers)
+                devices_info += device.GetDeviceDetails() + "\r\n";
 
             if (retryAttemptsLeft > 0)
                 devices_info += "Retries: " + retryAttemptsLeft + "\r\n";
 
             return devices_info;
-        }
-
-        private void LogInitialization(IDevice dev)
-        {
-            Global.logger.Info($"[{dev.GetDeviceName()}] {(dev.IsInitialized() ? "Initialized successfully." : "Failed to initialize.")}");
         }
 
         #region IDisposable Support

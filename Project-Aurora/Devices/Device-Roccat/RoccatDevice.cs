@@ -26,10 +26,8 @@ namespace Device_Roccat
         private readonly byte[] stateStruct = new byte[110];
         private readonly Roccat_Talk.TalkFX.Color[] colorStruct = new Roccat_Talk.TalkFX.Color[110];
 
-        public override bool Initialize()
+        protected override bool InitializeImpl()
         {
-            if (isInitialized)
-                return true;
 
             device_key = GlobalVarRegistry.GetVariable<DeviceKeys>($"{DeviceName}_devicekey");
             enable_generic = GlobalVarRegistry.GetVariable<bool>($"{DeviceName}_enable_generic");
@@ -43,7 +41,7 @@ namespace Device_Roccat
             if (!ryosTalkFx.Initialize())
             {
                 LogInfo("Could not initialize Ryos Talk Fx");
-                return isInitialized = false;
+                return false;
             }
 
             //Will return true even when no Ryos is connected. Check if TalkFx is opened?
@@ -51,13 +49,13 @@ namespace Device_Roccat
             if (!ryosTalkFx.EnterSdkMode())
             {
                 LogInfo("Could not Enter Ryos SDK Mode");
-                return isInitialized = false;
+                return false;
             }
 
-            return isInitialized = true;
+            return true;
         }
 
-        public override void Shutdown()
+        protected override void ShutdownImpl()
         {
             //Shutdown 1 color devices.
             var restoreColor = ToRoccatColor(GlobalVarRegistry.GetVariable<RealColor>($"{DeviceName}_restore_fallback"));
@@ -68,15 +66,10 @@ namespace Device_Roccat
             //Shutdown per key keyboards.
             ryosTalkFx?.ExitSdkMode();
             ryosTalkFx?.Dispose();
-
-            isInitialized = false;
         }
 
         public override bool UpdateDevice(Dictionary<DeviceKeys, Color> keyColors, DoWorkEventArgs e, bool forced = false)
         {
-            if (!isInitialized)
-                return false;
-
             if (enable_ryos)
             {
                 foreach (var key in keyColors)

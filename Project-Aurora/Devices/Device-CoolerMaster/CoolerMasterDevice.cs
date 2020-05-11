@@ -15,12 +15,12 @@ namespace Device_CoolerMaster
 
         public override string GetDeviceDetails()
         {
-            return DeviceName + ": " + (isInitialized ?
+            return DeviceName + ": " + (IsInitialized() ?
               string.Join(" ", InitializedDevices.Select(d => Enum.GetName(typeof(Native.DEVICE_INDEX), d))) :
               "Not Initialized");
         }
 
-        public override bool Initialize()
+        protected override bool InitializeImpl()
         {
             foreach (var device in Native.DEVICES.Where(d => d != Native.DEVICE_INDEX.DEFAULT))
             {
@@ -28,15 +28,13 @@ namespace Device_CoolerMaster
                     InitializedDevices.Add(device);
             }
 
-            return isInitialized = InitializedDevices.Any();
+            return InitializedDevices.Any();
         }
 
-        public override void Shutdown()
+        protected override void ShutdownImpl()
         {
             foreach (var dev in InitializedDevices)
                 Native.EnableLedControl(false, dev);
-
-            isInitialized = false;
         }
 
         public override bool UpdateDevice(Dictionary<DK, Color> keyColors, DoWorkEventArgs e, bool forced = false)

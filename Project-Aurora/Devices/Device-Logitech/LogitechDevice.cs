@@ -17,7 +17,7 @@ namespace Device_Logitech
     {
         protected override string DeviceName => "Logitech";
 
-        public override bool Initialize()
+        protected override bool InitializeImpl()
         {
             if (GlobalVarRegistry.GetVariable<bool>($"{DeviceName}_override"))
                 LogitechGSDK.GHUB = GlobalVarRegistry.GetVariable<DLLType>($"{DeviceName}_dlltype") == DLLType.GHUB;
@@ -29,15 +29,14 @@ namespace Device_Logitech
             if (LogitechGSDK.LogiLedInit() && LogitechGSDK.LogiLedSaveCurrentLighting())
             {
                 LogitechGSDK.LogiLedSetLighting(GlobalVarRegistry.GetVariable<RealColor>($"{DeviceName}_color").GetDrawingColor());
-                return isInitialized = true;
+                return true;
             }
 
-            return isInitialized = false;
+            return false;
         }
 
-        public override void Shutdown()
+        protected override void ShutdownImpl()
         {
-            isInitialized = false;
             LogitechGSDK.LogiLedRestoreLighting();
             LogitechGSDK.LogiLedShutdown();
         }

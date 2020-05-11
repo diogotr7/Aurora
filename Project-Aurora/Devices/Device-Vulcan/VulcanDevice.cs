@@ -14,11 +14,9 @@ namespace Device_Vulcan
     {
         protected override string DeviceName => "Vulcan";
 
-        protected override bool isInitialized => VulcanKeyboard.IsConnected;
+        protected override bool InitializeImpl() => VulcanKeyboard.Initialize();
 
-        public override bool Initialize() => VulcanKeyboard.Initialize();
-
-        public override void Shutdown() => VulcanKeyboard.Disconnect();
+        protected override void ShutdownImpl() => VulcanKeyboard.Disconnect();
 
         public override bool UpdateDevice(Dictionary<DeviceKeys, System.Drawing.Color> keyColors, DoWorkEventArgs e, bool forced = false)
         {

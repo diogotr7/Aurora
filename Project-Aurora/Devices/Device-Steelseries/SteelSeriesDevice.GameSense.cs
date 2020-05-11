@@ -56,7 +56,6 @@ namespace Device_SteelSeries
                 }
                 sendJson("/load_golisp_handlers", core);
                 var _ = Task.Run(async () => await sendPing(pingTaskTokenSource.Token), pingTaskTokenSource.Token);
-                isInitialized = true;
             }
             catch (Exception e)
             {
@@ -65,7 +64,7 @@ namespace Device_SteelSeries
             }
         }
 
-        private void loadCoreProps()
+        private bool loadCoreProps()
         {
             var file = new FileInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "SteelSeries/SteelSeries Engine 3/coreProps.json"));
             if (!file.Exists)
@@ -78,11 +77,13 @@ namespace Device_SteelSeries
                 reader.Dispose();
                 client.BaseAddress = new Uri("http://" + coreProps["address"]);
                 sendLispCode();
+                return true;
             }
             catch (Exception e)
             {
                 LogError(e, "SteelSeries Core Props Load failed.");
             }
+            return false;
         }
 
         private void setKeyboardLed(byte led, Color color)

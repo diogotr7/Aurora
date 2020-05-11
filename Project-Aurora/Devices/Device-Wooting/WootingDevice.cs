@@ -15,62 +15,38 @@ namespace Device_Wooting
     {
         protected override string DeviceName => "Wooting";
 
-        public override bool Initialize()
+        protected override bool InitializeImpl()
         {
-            if (!isInitialized)
-            {
-                try
-                {
-                    if (RGBControl.IsConnected())
-                    {
-                        isInitialized = true;
-                    }
-                }
-                catch (Exception exc)
-                {
-                    LogError("There was an error initializing Wooting SDK.\r\n" + exc.Message);
-
-                    return false;
-                }
-            }
-
-            return isInitialized;
-        }
-
-        public override void Shutdown()
-        {
-            if (!isInitialized)
-                return;
-
-            RGBControl.Reset();
-            isInitialized = false;
-        }
-
-        public override bool UpdateDevice(Dictionary<DeviceKeys, System.Drawing.Color> keyColors, DoWorkEventArgs e, bool forced = false)
-        {
-            if (!isInitialized)
-                return false;
-
             try
             {
-                foreach (var key in keyColors)
+                if (RGBControl.IsConnected())
                 {
-                    if(WootingMapping.KeyMap.TryGetValue(key.Key, out var wootKey))
-                    {
-                        var clr = CorrectAlpha(key.Value);
-                        RGBControl.SetKey(wootKey, (byte)(clr.R * GlobalVarRegistry.GetVariable<int>($"{DeviceName}_scalar_r") / 100),
-                                                   (byte)(clr.G * GlobalVarRegistry.GetVariable<int>($"{DeviceName}_scalar_g") / 100),
-                                                   (byte)(clr.B * GlobalVarRegistry.GetVariable<int>($"{DeviceName}_scalar_b") / 100));
-                    }
+                    return true;
                 }
-
-                return RGBControl.UpdateKeyboard();
             }
             catch (Exception exc)
             {
-                LogError("Failed to update device" + exc.ToString());
-                return false;
+                LogError("There was an error initializing Wooting SDK.\r\n" + exc.Message);
             }
+            return false;
+        }
+
+        protected override void ShutdownImpl() => RGBControl.Reset();
+
+        public override bool UpdateDevice(Dictionary<DeviceKeys, System.Drawing.Color> keyColors, DoWorkEventArgs e, bool forced = false)
+        {
+            foreach (var key in keyColors)
+            {
+                if(WootingMapping.KeyMap.TryGetValue(key.Key, out var wootKey))
+                {
+                    var clr = CorrectAlpha(key.Value);
+                    RGBControl.SetKey(wootKey, (byte)(clr.R * GlobalVarRegistry.GetVariable<int>($"{DeviceName}_scalar_r") / 100),
+                                                (byte)(clr.G * GlobalVarRegistry.GetVariable<int>($"{DeviceName}_scalar_g") / 100),
+                                                (byte)(clr.B * GlobalVarRegistry.GetVariable<int>($"{DeviceName}_scalar_b") / 100));
+                }
+            }
+
+            return RGBControl.UpdateKeyboard();
         }
 
         protected override void RegisterVariables(VariableRegistry local)

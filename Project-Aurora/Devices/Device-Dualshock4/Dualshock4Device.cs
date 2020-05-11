@@ -97,7 +97,7 @@ namespace Device_Dualshock4
         public override string GetDeviceDetails()
         {
             string details = DeviceName;
-            if (isInitialized)
+            if (IsInitialized())
             {
                 details += $": {Devices.Count} Device{(Devices.Count == 1 ? "" : "s")} Initialized: ";
 
@@ -112,11 +112,8 @@ namespace Device_Dualshock4
             return details;
         }
 
-        public override bool Initialize()
+        protected override bool InitializeImpl()
         {
-            if (isInitialized)
-                return true;
-
             key = GlobalVarRegistry.GetVariable<DeviceKeys>($"{DeviceName}_devicekey");
             DS4Devices.findControllers();
             var controllers = DS4Devices.getDS4Controllers();
@@ -124,20 +121,16 @@ namespace Device_Dualshock4
             foreach (var controller in controllers)
                 Devices.Add(new DS4Container(controller));
 
-            return isInitialized = Devices.Any();
+            return Devices.Any();
         }
 
-        public override void Shutdown()
+        protected override void ShutdownImpl()
         {
-            if (!isInitialized)
-                return;
-
             foreach (var dev in Devices)
                 dev.Disconnect(GlobalVarRegistry.GetVariable<bool>($"{DeviceName}_disconnect_when_stop"));
 
             DS4Devices.stopControllers();
             Devices.Clear();
-            isInitialized = false;
         }
 
         public override bool UpdateDevice(Dictionary<DeviceKeys, System.Drawing.Color> keyColors, DoWorkEventArgs e, bool forced = false)

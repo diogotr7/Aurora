@@ -27,12 +27,12 @@ namespace Device_Razer
 
         private readonly List<string> deviceNames = new List<string>();
 
-        public override bool Initialize()
+        protected override bool InitializeImpl()
         {
             if (!Chroma.SdkAvailable)
             {
                 LogError("SDK not available. Install Razer synapse");
-                return isInitialized = false;
+                return false;
             }
 
             try
@@ -42,23 +42,23 @@ namespace Device_Razer
             catch (Corale.Colore.Razer.NativeCallException e)
             {
                 LogError("Error initializing:" + e.Message);
-                return isInitialized = false;
+                return false;
             }
 
             if(!Chroma.Instance.Initialized)
             {
                 LogError("Failed to Initialize Razer Chroma sdk");
-                return isInitialized = false;
+                return false;
             }
 
             DetectDevices();
 
-            return isInitialized = true;
+            return true;
         }
 
         public override string GetDeviceDetails()
         {
-            if (isInitialized)
+            if (IsInitialized())
             {
                 string devString = DeviceName + ": ";
                 devString += "Connected";
@@ -76,28 +76,14 @@ namespace Device_Razer
             }
         }
 
-        public override void Shutdown()
+        protected override void ShutdownImpl()
         {
-            if (!isInitialized)
-                return;
-
-            try
-            {
-                Chroma.Instance.SetAll(Color.HotPink);
-                Chroma.Instance.Uninitialize();
-                isInitialized = false;
-            }
-            catch (Exception e)
-            {
-                LogError(e.Message);
-            }
+            Chroma.Instance.SetAll(Color.HotPink);
+            Chroma.Instance.Uninitialize();
         }
 
         public override bool UpdateDevice(Dictionary<DeviceKeys, System.Drawing.Color> keyColors, DoWorkEventArgs e, bool forced = false)
         {
-            if (!isInitialized)
-                return false;
-
             foreach (var key in keyColors)
             {
                 if (RazerMappings.keyboardDictionary.TryGetValue(key.Key, out var kbIndex))
@@ -149,8 +135,6 @@ namespace Device_Razer
 
         private void UpdateAll()
         {
-            if (!isInitialized)
-                return;
             Chroma.Instance.Keyboard.SetCustom(keyboard);
             Chroma.Instance.Keyboard.SetCustom(keyboard);
             Chroma.Instance.Mouse.SetGrid(mouse);

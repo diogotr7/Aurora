@@ -12,20 +12,12 @@ namespace Device_Drevo
     {
         protected override string DeviceName => "Drevo";
 
-        public override bool Initialize() => isInitialized = DrevoRadiSDK.DrevoRadiInit();
+        protected override bool InitializeImpl() => DrevoRadiSDK.DrevoRadiInit();
 
-        public override void Shutdown()
-        {
-            DrevoRadiSDK.DrevoRadiShutdown();
-            isInitialized = false;
-            return;
-        }
+        protected override void ShutdownImpl() => DrevoRadiSDK.DrevoRadiShutdown();
 
         public override bool UpdateDevice(Dictionary<DeviceKeys, System.Drawing.Color> keyColors, DoWorkEventArgs e, bool forced = false)
         {
-            if (!isInitialized)
-                return false;
-
             try
             {
                 byte[] bitmap = new byte[392];

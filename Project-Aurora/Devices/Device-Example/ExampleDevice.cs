@@ -14,18 +14,16 @@ namespace Device_Example
     {
         protected override string DeviceName => "Example Device";
 
-        public override bool Initialize()
+        protected override bool InitializeImpl()
         {
             LogInfo("Initializing example!");
 
-            return isInitialized = true;
+            return true;
         }
 
-        public override void Shutdown()
+        protected override void ShutdownImpl()
         {
             LogInfo("Shutting down example!");
-
-            isInitialized = false;
         }
 
         public override bool UpdateDevice(Dictionary<DeviceKeys, System.Drawing.Color> keyColors, DoWorkEventArgs e, bool forced = false)

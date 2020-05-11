@@ -1425,13 +1425,20 @@ namespace Aurora.Devices
     {
         protected abstract string DeviceName { get; }
 
-        protected virtual bool isInitialized { get; set; }
-
-        private readonly Stopwatch watch = new Stopwatch();
+        private bool isInitialized = false;
+        public bool IsInitialized() => isInitialized;
 
         private long lastUpdateTime = 0;
 
+        public event EventHandler DevicesInitialized;
+
+        private bool UpdateIsOngoing = false;
+
         private VariableRegistry variableRegistry;
+
+        private readonly Stopwatch watch = new Stopwatch();
+
+        private SemaphoreSlim SingleThread = new SemaphoreSlim(1, 1);
 
         protected void LogInfo(string s) => Global.logger.Info($"[{DeviceName}] {s}");
 
@@ -1468,21 +1475,34 @@ namespace Aurora.Devices
             return variableRegistry;
         }
 
-        public virtual bool IsInitialized()
+        public async void UpdateDevice(DeviceColorComposition colorComposition, DoWorkEventArgs e, bool forced = false)
         {
-            return isInitialized;
+            if (IsConnected() && !UpdateIsOngoing)
+            {
+                UpdateIsOngoing = true;
+                watch.Restart();
+                try
+                {
+                    if (!await Task.Run(() => UpdateDeviceImpl(colorComposition, e, false)))
+                    {
+                        LogError(DeviceName + " device, error when updating device.");
+                    }
+                }
+                catch (Exception exc)
+                {
+                    LogError(DeviceName + " device, error when updating device. Exception: " + exc.Message);
+                }
+
+                watch.Stop();
+                lastUpdateTime = watch.ElapsedMilliseconds;
+
+                UpdateIsOngoing = false;
+
+            }
         }
-
-        public virtual bool UpdateDevice(DeviceColorComposition colorComposition, DoWorkEventArgs e, bool forced = false)
+        protected virtual bool UpdateDeviceImpl(DeviceColorComposition colorComposition, DoWorkEventArgs e, bool forced)
         {
-            watch.Restart();
-
-            bool update_result = UpdateDevice(colorComposition.keyColors, e, forced);
-
-            watch.Stop();
-            lastUpdateTime = watch.ElapsedMilliseconds;
-
-            return update_result;
+            return UpdateDevice(colorComposition.keyColors, e, forced);
         }
 
         public virtual bool IsConnected()
@@ -1522,12 +1542,57 @@ namespace Aurora.Devices
         /// <summary>
         /// Is called first. Initialize the device here
         /// </summary>
-        public abstract bool Initialize();
+        public async void Initialize()
+        {
+            await SingleThread.WaitAsync();
 
+            if (!IsInitialized() && !Global.Configuration.devices_disabled.Contains(GetType()))
+            {
+                Global.logger.Info("Start initializing Device: " + GetDeviceName());
+                try
+                {
+                    if (await Task.Run(() => InitializeImpl()))
+                    {
+                        isInitialized = true;
+                        DevicesInitialized?.Invoke(this, new EventArgs());
+                    }
+                }
+                catch (Exception exc)
+                {
+                    Global.logger.Error("Device, " + GetDeviceName() + ", throwed exception:" + exc.ToString());
+                }
+                Global.logger.Info($"[{GetDeviceName()}] {(IsInitialized() ? "Initialized successfully." : "Failed to initialize.")}");
+            }
+            SingleThread.Release();
+
+        }
+
+        protected abstract bool InitializeImpl();
         /// <summary>
         /// Is called last. Dispose of the devices here
         /// </summary>
-        public abstract void Shutdown();
+        public async void Shutdown()
+        {
+            await SingleThread.WaitAsync();
+
+            if (IsInitialized())
+            {
+                try
+                {
+                    await Task.Run(() => ShutdownImpl());
+                    isInitialized = false;
+                    Global.logger.Info("Device, " + GetDeviceName() + ", was shutdown");
+                }
+                catch (Exception exc)
+                {
+                    Global.logger.Error("Device, " + GetDeviceName() + ", throwed exception:" + exc.ToString());
+                }
+            }
+
+            SingleThread.Release();
+        }
+
+        protected abstract void ShutdownImpl();
 
         /// <summary>
         /// Is called every frame (30fps). Update the device here
@@ -1537,5 +1602,16 @@ namespace Aurora.Devices
         public virtual Window GetWindow() => null;
 
         public virtual bool HasWindow { get; } = false;
+        bool IDevice.Initialize()
+        {
+            Initialize();
+            return isInitialized;
+        }
+
+        bool IDevice.UpdateDevice(DeviceColorComposition colorComposition, DoWorkEventArgs e, bool forced = false)
+        {
+            UpdateDevice(colorComposition, e, forced);
+            return true;
+        }
     }
 }

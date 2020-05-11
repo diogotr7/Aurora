@@ -61,7 +61,7 @@ namespace Aurora.Controls
 
         private void UpdateControls()
         {
-            this.lstDevices.ItemsSource = Global.dev_manager.DeviceContainers.OrderBy(dc => dc.Device.GetDeviceName());
+            this.lstDevices.ItemsSource = Global.dev_manager.DeviceContainers.OrderBy(dc => dc.GetDeviceName());
             this.lstDevices.Items.Refresh();
         }
 
