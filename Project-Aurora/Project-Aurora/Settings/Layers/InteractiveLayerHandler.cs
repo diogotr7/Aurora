@@ -15,6 +15,7 @@ using System.Windows.Controls;
 using Aurora.Utils;
 using Gma.System.MouseKeyHook;
 using SharpDX.RawInput;
+using Aurora.Devices;
 
 namespace Aurora.Settings.Layers
 {
@@ -126,8 +127,10 @@ namespace Aurora.Settings.Layers
 
         public InteractiveLayerHandler()
         {
-            Global.InputEvents.KeyDown += InputEventsKeyDown;
-            Global.InputEvents.KeyUp += InputEventsKeyUp;
+            Global.InputEvents.KeyDown += (s, e) => InputEventsKeyDown(e.GetDeviceKey(), e.Key);
+            Global.InputEvents.KeyUp += (s, e) => InputEventsKeyUp(e.GetDeviceKey(), e.Key);
+            Global.InputEvents.MouseButtonDown += (s, e) => InputEventsKeyDown(DeviceKeys.Peripheral_Logo, Keys.LButton);
+            Global.InputEvents.MouseButtonUp += (s, e) => InputEventsKeyUp(DeviceKeys.Peripheral_Logo, Keys.LButton);
         }
 
         protected override System.Windows.Controls.UserControl CreateControl()
@@ -135,12 +138,11 @@ namespace Aurora.Settings.Layers
             return new Control_InteractiveLayer(this);
         }
 
-        private void InputEventsKeyUp(object sender, KeyboardInputEventArgs e)
+        private void InputEventsKeyUp(DeviceKeys deviceKey, Keys key)
         {
             if (Utils.Time.GetMillisecondsSinceEpoch() - previoustime > 1000L)
                 return; //This event wasn't used for at least 1 second
 
-            Devices.DeviceKeys deviceKey = e.GetDeviceKey();
             if (deviceKey != Devices.DeviceKeys.NONE)
             {
                 foreach (var input in _input_list.ToArray())
@@ -150,24 +152,23 @@ namespace Aurora.Settings.Layers
                 }
             }
 
-            if (previous_key == e.Key)
+            if (previous_key == key)
                 previous_key = Keys.None;
         }
 
         private Dictionary<Devices.DeviceKeys, long> TimeOfLastPress = new Dictionary<Devices.DeviceKeys, long>();
         private const long pressBuffer = 300L;
 
-        private void InputEventsKeyDown(object sender, KeyboardInputEventArgs e)
+        private void InputEventsKeyDown(DeviceKeys device_key, Keys key)
         {
             if (Utils.Time.GetMillisecondsSinceEpoch() - previoustime > 1000L)
                 return; //This event wasn't used for at least 1 second
 
 
-            if (previous_key == e.Key)
+            if (previous_key == key)
                 return;
 
             long? currentTime = null;
-            Devices.DeviceKeys device_key = e.GetDeviceKey();
 
             lock (TimeOfLastPress)
             {
@@ -189,7 +190,7 @@ namespace Aurora.Settings.Layers
                         TimeOfLastPress.Add(device_key, currentTime ?? Utils.Time.GetMillisecondsSinceEpoch());
 
                     _input_list.Add(CreateInputItem(device_key, pt));
-                    previous_key = e.Key;
+                    previous_key = key;
                 }
             }
         }
