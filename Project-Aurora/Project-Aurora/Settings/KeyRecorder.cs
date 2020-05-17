@@ -1,5 +1,4 @@
 ﻿using Aurora.Devices;
-using Gma.System.MouseKeyHook;
 using System;
 using System.Collections.Generic;
 using System.Linq;

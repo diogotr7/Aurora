@@ -13,7 +13,6 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Controls;
 using Aurora.Utils;
-using Gma.System.MouseKeyHook;
 using SharpDX.RawInput;
 using Aurora.Devices;
 

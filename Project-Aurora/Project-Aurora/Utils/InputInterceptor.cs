@@ -5,7 +5,6 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using Aurora.Utils;
-using Gma.System.MouseKeyHook.WinApi;
 using Microsoft.Win32.SafeHandles;
 using SharpDX.RawInput;
 
@@ -16,6 +15,7 @@ namespace Aurora
     /// </summary>
     internal sealed class InputInterceptor : IDisposable
     {
+        delegate IntPtr HookProcedure(int nCode, IntPtr wParam, IntPtr lParam);
         private readonly MessagePumpThread thread = new MessagePumpThread();
         private readonly HookProcedure hookProcedure;
 
