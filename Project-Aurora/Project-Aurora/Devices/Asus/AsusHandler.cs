@@ -25,11 +25,11 @@ namespace Aurora.Devices.Asus
         /// </summary>
         public bool HasSdk => AuraSdk != null;
 
-        public AsusHandler(bool enableUnsupportedVersion = false)
+        public AsusHandler(bool enableUnsupportedVersion = false, bool forced = false)
         {
             try
             {
-                if (CheckVersion(enableUnsupportedVersion, out string message))
+                if (CheckVersion(enableUnsupportedVersion,forced, out string message))
                     AuraSdk = new AuraSdk() as IAuraSdk2;
                 else
                     AuraSdk = null;
@@ -47,9 +47,15 @@ namespace Aurora.Devices.Asus
         /// Checks to see if the version of Aura installed is the correct one
         /// </summary>
         /// <returns>true if the registry entry equals to <see cref="RecommendedAsusVersion"/></returns>
-        private bool CheckVersion(bool enableUnsupportedVersion, out string message)
+        private bool CheckVersion(bool enableUnsupportedVersion, bool forced, out string message)
         {
             message = null;
+
+            if (forced)
+            {
+                message = "Forced initialization, skipping version checks";
+                return true;
+            }
 
             //Computer\HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Asus\AURA\Version
             using (var root = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32))
