@@ -77,34 +77,53 @@ namespace Aurora.Profiles
             if (Initialized)
                 return true;
 
+            Global.logger.Info("Starting Active Proccess Monitor");
             processMonitor = new ActiveProcessMonitor();
+            Global.logger.Info("Starting Running Proccess Monitor");
             runningProcessMonitor = new RunningProcessMonitor();
 
-            // Register all Application types in the assembly
-            var profileTypes = from type in Assembly.GetExecutingAssembly().GetTypes()
-                               where type.BaseType == typeof(Application) && type != typeof(GenericApplication)
-                               let inst = (Application)Activator.CreateInstance(type)
-                               orderby inst.Config.Name
-                               select inst;
-            foreach (var inst in profileTypes)
-                RegisterEvent(inst);
+            Global.logger.Info("Adding application types");
+            try
+            {
+                // Register all Application types in the assembly
+                var profileTypes = from type in Assembly.GetExecutingAssembly().GetTypes()
+                                   where type.BaseType == typeof(Application) && type != typeof(GenericApplication)
+                                   let inst = (Application)Activator.CreateInstance(type)
+                                   orderby inst.Config.Name
+                                   select inst;
+                foreach (var inst in profileTypes)
+                    RegisterEvent(inst);
+            }
+            catch (Exception e)
+            {
+                Global.logger.Error(e.ToString);
+            }
 
-            // Register all layer types that are in the Aurora.Settings.Layers namespace.
-            // Do not register all that are inside the assembly since some are application-specific (e.g. minecraft health layer)
-            var layerTypes = from type in Assembly.GetExecutingAssembly().GetTypes()
-                             where type.GetInterfaces().Contains(typeof(ILayerHandler))
-                             let name = type.Name.CamelCaseToSpaceCase()
-                             let meta = type.GetCustomAttribute<LayerHandlerMetaAttribute>()
-                             where !type.IsGenericType
-                             where meta == null || !meta.Exclude
-                             select (type, meta);
-            foreach (var (type, meta) in layerTypes)
-                LayerHandlers.Add(type, new LayerHandlerMeta(type, meta));
+            Global.logger.Info("Adding layer handlers");
+            try
+            {
+                // Register all layer types that are in the Aurora.Settings.Layers namespace.
+                // Do not register all that are inside the assembly since some are application-specific (e.g. minecraft health layer)
+                var layerTypes = from type in Assembly.GetExecutingAssembly().GetTypes()
+                                 where type.GetInterfaces().Contains(typeof(ILayerHandler))
+                                 let name = type.Name.CamelCaseToSpaceCase()
+                                 let meta = type.GetCustomAttribute<LayerHandlerMetaAttribute>()
+                                 where !type.IsGenericType
+                                 where meta == null || !meta.Exclude
+                                 select (type, meta);
+                foreach (var (type, meta) in layerTypes)
+                    LayerHandlers.Add(type, new LayerHandlerMeta(type, meta));
+            }
+            catch (Exception e)
+            {
+                Global.logger.Error(e.ToString);
+            }
 
+            Global.logger.Info("Loading settings");
             LoadSettings();
-
+            Global.logger.Info("Loading plugins");
             LoadPlugins();
-
+            Global.logger.Info("Loading additional profiles");
             if (Directory.Exists(AdditionalProfilesPath))
             {
                 List<string> additionals = new List<string>(Directory.EnumerateDirectories(AdditionalProfilesPath));
@@ -118,6 +137,7 @@ namespace Aurora.Profiles
                 }
             }
 
+            Global.logger.Info("Initializing profiles");
             foreach (var profile in Events)
             {
                 profile.Value.Initialize();
@@ -147,7 +167,7 @@ namespace Aurora.Profiles
                     Global.Configuration.ProfileOrder.Add(kvp.Key);
             }
 
-            foreach(string key in Global.Configuration.ProfileOrder.ToList())
+            foreach (string key in Global.Configuration.ProfileOrder.ToList())
             {
                 if (!Events.ContainsKey(key) || !(Events[key] is Application))
                     Global.Configuration.ProfileOrder.Remove(key);
@@ -161,7 +181,7 @@ namespace Aurora.Profiles
         {
             SaveSettings();
 
-            foreach(var profile in Events)
+            foreach (var profile in Events)
             {
                 if (profile.Value is Application)
                     ((Application)profile.Value).SaveAll();
@@ -262,7 +282,8 @@ namespace Aurora.Profiles
                 {
                     return processTitleProfile;
                 }
-            } else
+            }
+            else
             {
                 return processNameProfile;
             }
@@ -285,9 +306,12 @@ namespace Aurora.Profiles
             return null;
         }
 
-        public ILightEvent GetProfileFromProcessTitle(string title) {
-            foreach (var entry in EventTitles) {
-                if (Regex.IsMatch(title, entry.Key, RegexOptions.IgnoreCase)) {
+        public ILightEvent GetProfileFromProcessTitle(string title)
+        {
+            foreach (var entry in EventTitles)
+            {
+                if (Regex.IsMatch(title, entry.Key, RegexOptions.IgnoreCase))
+                {
                     if (!Events.ContainsKey(entry.Value))
                         Global.logger.Warn($"GetProfileFromProcess: The process with title '{title}' matchs an item in EventTitles but subsequently '{entry.Value}' does not in Events!");
                     else
@@ -339,7 +363,8 @@ namespace Aurora.Profiles
 
         private void InitUpdate()
         {
-            updateTimer = new System.Threading.Timer(g => {
+            updateTimer = new System.Threading.Timer(g =>
+            {
                 Stopwatch watch = new Stopwatch();
                 watch.Start();
                 if (Global.isDebug)
@@ -394,7 +419,7 @@ namespace Aurora.Profiles
                 }
             }
         }
-        
+
         private void UpdateEvent(ILightEvent @event, EffectsEngine.EffectFrame frame)
         {
             StartEvent(@event);
@@ -404,7 +429,7 @@ namespace Aurora.Profiles
         private bool StartEvent(ILightEvent @event)
         {
             UpdatedEvents.Add(@event);
-            
+
             // Skip if event was already started
             if (StartedEvents.Contains(@event)) return false;
 
@@ -418,14 +443,14 @@ namespace Aurora.Profiles
         {
             // Skip if there are no started events or started events are the same since last update
             if (!StartedEvents.Any() || StartedEvents.SequenceEqual(UpdatedEvents)) return false;
-            
+
             List<ILightEvent> eventsToStop = StartedEvents.Except(UpdatedEvents).ToList();
             foreach (var eventToStop in eventsToStop)
                 eventToStop.OnStop();
-            
+
             StartedEvents.Clear();
             StartedEvents.AddRange(UpdatedEvents);
-            
+
             return true;
         }
 
@@ -451,7 +476,7 @@ namespace Aurora.Profiles
 
             //TODO: Move these IdleEffects to an event
             //this.UpdateIdleEffects(newFrame);
-            
+
             ILightEvent profile = GetCurrentProfile(out bool preview);
 
             timerInterval = profile?.Config?.UpdateInterval ?? defaultTimerInterval;
@@ -472,7 +497,8 @@ namespace Aurora.Profiles
                 UpdateEvent(profile, newFrame);
 
             // Overlay layers
-            if (!preview || Global.Configuration.OverlaysInPreview) {
+            if (!preview || Global.Configuration.OverlaysInPreview)
+            {
                 foreach (var @event in GetOverlayActiveProfiles())
                     @event.UpdateOverlayLights(newFrame);
 
@@ -492,7 +518,8 @@ namespace Aurora.Profiles
 
         /// <summary>Gets the current application.</summary>
         /// <param name="preview">Boolean indicating whether the application is selected because it is previewing (true) or because the process is open (false).</param>
-        public ILightEvent GetCurrentProfile(out bool preview) {
+        public ILightEvent GetCurrentProfile(out bool preview)
+        {
             string process_name = Path.GetFileName(processMonitor.ProcessPath).ToLower();
             string process_title = processMonitor.GetActiveWindowsProcessTitle();
             ILightEvent profile = null;
@@ -506,7 +533,8 @@ namespace Aurora.Profiles
             {
                 profile = tempProfile;
                 preview = true;
-            } else if (Global.Configuration.allow_wrappers_in_background && Global.net_listener != null && Global.net_listener.IsWrapperConnected && ((tempProfile = GetProfileFromProcessName(Global.net_listener.WrappedProcess)) != null) && tempProfile.IsEnabled)
+            }
+            else if (Global.Configuration.allow_wrappers_in_background && Global.net_listener != null && Global.net_listener.IsWrapperConnected && ((tempProfile = GetProfileFromProcessName(Global.net_listener.WrappedProcess)) != null) && tempProfile.IsEnabled)
                 profile = tempProfile;
 
             profile = profile ?? DesktopProfile;
@@ -523,15 +551,17 @@ namespace Aurora.Profiles
         public IEnumerable<ILightEvent> GetOverlayActiveProfiles() => Events.Values
             .Where(evt => evt.IsOverlayEnabled)
             .Where(evt => evt.Config.ProcessNames == null || evt.Config.ProcessNames.Any(name => runningProcessMonitor.IsProcessRunning(name)));
-            //.Where(evt => evt.Config.ProcessTitles == null || ProcessUtils.AnyProcessWithTitleExists(evt.Config.ProcessTitles));
+        //.Where(evt => evt.Config.ProcessTitles == null || ProcessUtils.AnyProcessWithTitleExists(evt.Config.ProcessTitles));
 
         /// <summary>KeyDown handler that checks the current application's profiles for keybinds.
         /// In the case of multiple profiles matching the keybind, it will pick the next one as specified in the Application.Profile order.</summary>
-        public void CheckProfileKeybinds(object sender, SharpDX.RawInput.KeyboardInputEventArgs e) {
+        public void CheckProfileKeybinds(object sender, SharpDX.RawInput.KeyboardInputEventArgs e)
+        {
             ILightEvent profile = GetCurrentProfile();
 
             // Check profile is valid and do not switch profiles if the user is trying to enter a keybind
-            if (profile is Application && Controls.Control_Keybind._ActiveKeybind == null) {
+            if (profile is Application && Controls.Control_Keybind._ActiveKeybind == null)
+            {
 
                 // Find all profiles that have their keybinds pressed
                 List<ApplicationProfile> possibleProfiles = new List<ApplicationProfile>();
@@ -540,7 +570,8 @@ namespace Aurora.Profiles
                         possibleProfiles.Add(prof);
 
                 // If atleast one profile has it's key pressed
-                if (possibleProfiles.Count > 0) {
+                if (possibleProfiles.Count > 0)
+                {
                     // The target profile is the NEXT valid profile after the currently selected one (or the first valid one if the currently selected one doesn't share this keybind)
                     int trg = (possibleProfiles.IndexOf((profile as Application).Profile) + 1) % possibleProfiles.Count;
                     (profile as Application).SwitchToProfile(possibleProfiles[trg]);
@@ -553,48 +584,48 @@ namespace Aurora.Profiles
         {
             //Debug.WriteLine("Received gs!");
 
-//Global.logger.LogLine(gs.ToString(), Logging_Level.None, false);
+            //Global.logger.LogLine(gs.ToString(), Logging_Level.None, false);
 
-//UpdateProcess();
+            //UpdateProcess();
 
-//string process_name = System.IO.Path.GetFileName(processMonitor.ProcessPath).ToLowerInvariant();
+            //string process_name = System.IO.Path.GetFileName(processMonitor.ProcessPath).ToLowerInvariant();
 
-//EffectsEngine.EffectFrame newFrame = new EffectsEngine.EffectFrame();
+            //EffectsEngine.EffectFrame newFrame = new EffectsEngine.EffectFrame();
 #if DEBUG
 #else
             try
             {
 #endif
-                ILightEvent profile;// = this.GetProfileFromProcess(process_name);
-                
+            ILightEvent profile;// = this.GetProfileFromProcess(process_name);
 
-                JObject provider = Newtonsoft.Json.Linq.JObject.Parse(gs.GetNode("provider"));
-                string appid = provider.GetValue("appid").ToString();
-                string name = provider.GetValue("name").ToString().ToLowerInvariant();
 
-                if ((profile = GetProfileFromAppID(appid)) != null || (profile = GetProfileFromProcessName(name)) != null)
+            JObject provider = Newtonsoft.Json.Linq.JObject.Parse(gs.GetNode("provider"));
+            string appid = provider.GetValue("appid").ToString();
+            string name = provider.GetValue("name").ToString().ToLowerInvariant();
+
+            if ((profile = GetProfileFromAppID(appid)) != null || (profile = GetProfileFromProcessName(name)) != null)
+            {
+                IGameState gameState = gs;
+                if (profile.Config.GameStateType != null)
+                    gameState = (IGameState)Activator.CreateInstance(profile.Config.GameStateType, gs.Json);
+                profile.SetGameState(gameState);
+            }
+            else if (gs is GameState_Wrapper && Global.Configuration.allow_all_logitech_bitmaps)
+            {
+                string gs_process_name = Newtonsoft.Json.Linq.JObject.Parse(gs.GetNode("provider")).GetValue("name").ToString().ToLowerInvariant();
+                lock (Events)
                 {
-                    IGameState gameState = gs;
-                    if (profile.Config.GameStateType != null)
-                        gameState = (IGameState)Activator.CreateInstance(profile.Config.GameStateType, gs.Json);
-                    profile.SetGameState(gameState);
-                }
-                else if (gs is GameState_Wrapper && Global.Configuration.allow_all_logitech_bitmaps)
-                {
-                    string gs_process_name = Newtonsoft.Json.Linq.JObject.Parse(gs.GetNode("provider")).GetValue("name").ToString().ToLowerInvariant();
-                    lock (Events)
+                    profile = profile ?? GetProfileFromProcessName(gs_process_name);
+
+                    if (profile == null)
                     {
-                        profile = profile ?? GetProfileFromProcessName(gs_process_name);
-
-                        if (profile == null)
-                        {
-                            Events.Add(gs_process_name, new GameEvent_Aurora_Wrapper(new LightEventConfig { GameStateType = typeof(GameState_Wrapper), ProcessNames = new[] { gs_process_name } }));
-                            profile = Events[gs_process_name];
-                        }
-
-                        profile.SetGameState(gs);
+                        Events.Add(gs_process_name, new GameEvent_Aurora_Wrapper(new LightEventConfig { GameStateType = typeof(GameState_Wrapper), ProcessNames = new[] { gs_process_name } }));
+                        profile = Events[gs_process_name];
                     }
+
+                    profile.SetGameState(gs);
                 }
+            }
 #if DEBUG
 #else
             }
@@ -654,10 +685,12 @@ namespace Aurora.Profiles
     /// <summary>
     /// POCO that stores data about a type of layer.
     /// </summary>
-    public class LayerHandlerMeta {
+    public class LayerHandlerMeta
+    {
 
         /// <summary>Creates a new LayerHandlerMeta object from the given meta attribute and type.</summary>
-        public LayerHandlerMeta(Type type, LayerHandlerMetaAttribute attribute) {
+        public LayerHandlerMeta(Type type, LayerHandlerMetaAttribute attribute)
+        {
             Name = attribute?.Name ?? type.Name.CamelCaseToSpaceCase().TrimEndStr(" Layer Handler");
             Type = type;
             IsDefault = attribute?.IsDefault ?? type.Namespace == "Aurora.Settings.Layers"; // if the layer is in the Aurora.Settings.Layers namespace, make the IsDefault true unless otherwise specified. If it is in another namespace, it's probably a custom application layer and so make IsDefault false unless otherwise specified
@@ -675,7 +708,8 @@ namespace Aurora.Profiles
     /// Attribute to provide additional meta data about layers for them to be registered.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    public class LayerHandlerMetaAttribute : Attribute {
+    public class LayerHandlerMetaAttribute : Attribute
+    {
         /// <summary>A different name for the layer. If not specified, will automatically take it from the layer's class name.</summary>
         public string Name { get; set; }
 
