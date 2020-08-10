@@ -97,16 +97,7 @@ namespace Aurora.Devices
 
         public DeviceManager()
         {
-            var deviceTypes = from type in Assembly.GetExecutingAssembly().GetTypes()
-                              where typeof(Device).IsAssignableFrom(type)
-                              && !type.IsAbstract
-                              && type != typeof(ScriptedDevice.ScriptedDevice)
-                              let inst = (Device)Activator.CreateInstance(type)
-                              orderby inst.GetDeviceName()
-                              select inst;
-
-            foreach (var inst in deviceTypes)
-                devices.Add(new DeviceContainer(inst));
+            devices.Add(new DeviceContainer(new OpenRGB.OpenRGBAuroraDevice()));
 
             string devices_scripts_path = System.IO.Path.Combine(Global.ExecutingDirectory, "Scripts", "Devices");
 
