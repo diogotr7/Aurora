@@ -115,8 +115,9 @@ namespace Aurora.Profiles
         {
             if (Initialized)
                 return Initialized;
-
+            Global.logger.Info("Loading settings...");
             LoadSettings(Config.SettingsType);
+            Global.logger.Info("Loading profiles...");
             LoadProfiles();
             Initialized = true;
             return Initialized;

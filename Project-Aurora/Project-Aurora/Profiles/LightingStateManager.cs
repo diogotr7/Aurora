@@ -140,6 +140,7 @@ namespace Aurora.Profiles
             Global.logger.Info("Initializing profiles");
             foreach (var profile in Events)
             {
+                Global.logger.Info($"Initializing profile: {profile.Value.Config.Name}");
                 profile.Value.Initialize();
             }
 
