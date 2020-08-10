@@ -191,8 +191,10 @@
     <Content Include="Resources\SteelSeriesInstall\*.png" />
     <Compile Remove="Devices\Creative\SoundBlasterXDevice.cs" />
     <Compile Remove="Devices\NZXT\NZXTDevice.cs" />
+    <Compile Remove="Devices\Uniwill\UniwillDevice.cs" />
     <None Include="Devices\Creative\SoundBlasterXDevice.cs" />
     <None Include="Devices\NZXT\NZXTDevice.cs" />
+    <None Include="Devices\Uniwill\UniwillDevice.cs" />
 
     <Resource Include="Resources\Win32\Aurora-LightFXWrapper.dll" />
     <Resource Include="Resources\Win32\Aurora-LogiLEDWrapper.dll" />
