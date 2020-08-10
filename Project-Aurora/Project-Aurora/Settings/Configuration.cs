@@ -575,7 +575,7 @@ namespace Aurora.Settings
             devices_disabled = new HashSet<Type>();
             devices_disabled.Add(typeof(Devices.Dualshock.DualshockDevice));
             devices_disabled.Add(typeof(Devices.AtmoOrbDevice.AtmoOrbDevice));
-            devices_disabled.Add(typeof(Devices.NZXT.NZXTDevice));
+            //devices_disabled.Add(typeof(Devices.NZXT.NZXTDevice));
             OverlaysInPreview = true;
 
             //Blackout and Night theme

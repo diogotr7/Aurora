@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <Platforms>AnyCPU;x64</Platforms>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <WarningLevel>3</WarningLevel>
@@ -9,12 +9,12 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Aurora</RootNamespace>
     <AssemblyName>Aurora</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <LangVersion>8.0</LangVersion>
     <NeutralLanguage>en</NeutralLanguage>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
     <UseWPF>true</UseWPF>
+	<UseWindowsForms>true</UseWindowsForms>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <OutputPath>$(SolutionDir)..\Build\$(Configuration)</OutputPath>
     <ApplicationIcon>Resources\aurora_icon.ico</ApplicationIcon>
@@ -89,6 +89,7 @@
     <PackageReference Include="SharpDX.RawInput" Version="4.0.1" />
     <PackageReference Include="SignedBuild-Hardcodet.NotifyIcon.Wpf" Version="1.0.5" />
     <PackageReference Include="System.Console" Version="4.3.1" />
+    <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
     <PackageReference Include="System.Management" Version="4.7.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
     <PackageReference Include="System.Xml.ReaderWriter" Version="4.3.1" />
@@ -188,6 +189,10 @@
     <Content Include="Resources\LogitechInstall\*.png" />
     <Content Include="Resources\RazerInstall\*.png" />
     <Content Include="Resources\SteelSeriesInstall\*.png" />
+    <Compile Remove="Devices\Creative\SoundBlasterXDevice.cs" />
+    <Compile Remove="Devices\NZXT\NZXTDevice.cs" />
+    <None Include="Devices\Creative\SoundBlasterXDevice.cs" />
+    <None Include="Devices\NZXT\NZXTDevice.cs" />
 
     <Resource Include="Resources\Win32\Aurora-LightFXWrapper.dll" />
     <Resource Include="Resources\Win32\Aurora-LogiLEDWrapper.dll" />

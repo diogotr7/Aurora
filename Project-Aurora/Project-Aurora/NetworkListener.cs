@@ -268,9 +268,9 @@ namespace Aurora
                     PipeTransmissionMode.Message,
                     PipeOptions.None,
                     5 * 1024,
-                    5 * 1024,
-                    pipeSa,
-                    HandleInheritability.None
+                    5 * 1024
+                    //pipeSa,
+                    //HandleInheritability.None
                     ))
                     {
                         wrapper_connected = false;
@@ -340,9 +340,9 @@ namespace Aurora
                     PipeTransmissionMode.Message,
                     PipeOptions.None,
                     5 * 1024,
-                    5 * 1024,
-                    pipeSa,
-                    HandleInheritability.None
+                    5 * 1024
+                   // pipeSa,
+                   // HandleInheritability.None
                     ))
                     {
                         Global.logger.Info("[AuroraCommandsServerIPC] Pipe created {0}", IPCCommandpipeStream?.GetHashCode());

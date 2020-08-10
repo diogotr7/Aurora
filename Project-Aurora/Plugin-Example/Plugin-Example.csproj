@@ -1,13 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <Platforms>AnyCPU;x64</Platforms>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Plugin_Example</RootNamespace>
     <AssemblyName>Plugin-Example</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <Title>Plugin-Example</Title>
     <Product>Plugin-Example</Product>
     <Copyright>Copyright ©  2017</Copyright>
