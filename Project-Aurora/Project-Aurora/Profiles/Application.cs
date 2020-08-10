@@ -567,15 +567,18 @@ namespace Aurora.Profiles
 
         public virtual void LoadProfiles()
         {
+            Global.logger.Info("Getting profile folder path");
             string profilesPath = GetProfileFolderPath();
 
             if (Directory.Exists(profilesPath))
             {
+                Global.logger.Info("Loading scripts");
                 this.LoadScripts(profilesPath);
 
+                Global.logger.Info("Loading json profiles");
                 foreach (string profile in Directory.EnumerateFiles(profilesPath, "*.json", SearchOption.TopDirectoryOnly))
                 {
-
+                    Global.logger.Info($"Loading file: {profile}");
                     string profileFilename = Path.GetFileNameWithoutExtension(profile);
                     if (profileFilename.Equals(Path.GetFileNameWithoutExtension(SettingsSavePath)))
                         continue;
@@ -590,18 +593,23 @@ namespace Aurora.Profiles
 
                         Profiles.Add(profileSettings);
                     }
+                    else
+                    {
+                        Global.logger.Info("Profile was null");
+                    }
                 }
             }
             else
             {
                 Global.logger.Info(string.Format("Profiles directory for {0} does not exist.", Config.Name));
             }
-
+            Global.logger.Info("Finished loading profiles");
             if (Profile == null)
                 SwitchToProfile(Profiles.FirstOrDefault());
             else
                 Settings.SelectedProfile = Path.GetFileNameWithoutExtension(Profile.ProfileFilepath);
 
+            Global.logger.Info("Creating default profile...");
             if (Profile == null)
                 CreateDefaultProfile();
 

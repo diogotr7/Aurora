@@ -31,22 +31,24 @@ namespace Aurora.Utils
         static HardwareMonitor()
 #pragma warning restore CA1810 // Initialize reference type static fields inline
         {
-            _computer = new Computer()
-            {
-                IsCpuEnabled = true,
-                IsGpuEnabled = true,
-                IsMemoryEnabled = true,
-                IsNetworkEnabled = true
-            };
-            try
-            {
-                _computer.Open();
-                _hardware = _computer.Hardware;
-            }
-            catch (Exception e)
-            {
-                Global.logger.Error(e);
-            }
+            //_computer = new Computer()
+            //{
+            //    IsCpuEnabled = true,
+            //    IsGpuEnabled = true,
+            //    IsMemoryEnabled = true,
+            //    IsNetworkEnabled = true
+            //};
+            //try
+            //{
+            //    _computer.Open();
+            //    _hardware = _computer.Hardware;
+            //}
+            //catch (Exception e)
+            //{
+            //    Global.logger.Error(e);
+            //}
+
+            _hardware = new List<IHardware>();
         }
 
         public static bool TryDump()
@@ -109,6 +111,8 @@ namespace Aurora.Utils
 
             protected float GetValue(ISensor sensor)
             {
+                if (sensor is null)
+                    return 0;
                 inUse = true;
                 _useTimer.Stop();
                 _useTimer.Start();
