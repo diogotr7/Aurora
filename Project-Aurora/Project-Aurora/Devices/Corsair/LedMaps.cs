@@ -227,18 +227,18 @@ namespace Aurora.Devices.Corsair
 
         internal static readonly Dictionary<DeviceKeys, CorsairLedId> MemoryLedMap = new Dictionary<DeviceKeys, CorsairLedId>()
         {
-            [DeviceKeys.G1] = CorsairLedId.DRAM_1,
-            [DeviceKeys.G2] = CorsairLedId.DRAM_2,
-            [DeviceKeys.G3] = CorsairLedId.DRAM_3,
-            [DeviceKeys.G4] = CorsairLedId.DRAM_4,
-            [DeviceKeys.G5] = CorsairLedId.DRAM_5,
-            [DeviceKeys.G6] = CorsairLedId.DRAM_6,
-            [DeviceKeys.G7] = CorsairLedId.DRAM_7,
-            [DeviceKeys.G8] = CorsairLedId.DRAM_8,
-            [DeviceKeys.G9] = CorsairLedId.DRAM_9,
-            [DeviceKeys.G10] = CorsairLedId.DRAM_10,
-            [DeviceKeys.G11] = CorsairLedId.DRAM_11,
-            [DeviceKeys.G12] = CorsairLedId.DRAM_12
+            [DeviceKeys.ADDITIONALLIGHT5] = CorsairLedId.DRAM_1,
+            [DeviceKeys.ADDITIONALLIGHT6] = CorsairLedId.DRAM_2,
+            [DeviceKeys.ADDITIONALLIGHT7] = CorsairLedId.DRAM_3,
+            [DeviceKeys.ADDITIONALLIGHT8] = CorsairLedId.DRAM_4,
+            [DeviceKeys.ADDITIONALLIGHT9] = CorsairLedId.DRAM_5,
+            [DeviceKeys.ADDITIONALLIGHT10] = CorsairLedId.DRAM_6,
+            [DeviceKeys.ADDITIONALLIGHT11] = CorsairLedId.DRAM_7,
+            [DeviceKeys.ADDITIONALLIGHT12] = CorsairLedId.DRAM_8,
+            [DeviceKeys.ADDITIONALLIGHT13] = CorsairLedId.DRAM_9,
+            [DeviceKeys.ADDITIONALLIGHT14] = CorsairLedId.DRAM_10,
+            [DeviceKeys.ADDITIONALLIGHT15] = CorsairLedId.DRAM_11,
+            [DeviceKeys.ADDITIONALLIGHT16] = CorsairLedId.DRAM_12
         };
 
         internal static readonly Dictionary<CorsairDeviceType, Dictionary<DeviceKeys, CorsairLedId>> MapsMap = new Dictionary<CorsairDeviceType, Dictionary<DeviceKeys, CorsairLedId>>()
